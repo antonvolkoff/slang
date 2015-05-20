@@ -11,7 +11,7 @@ import (
 func read(input string) (*Node, error) {
 	r := NewReader()
 	node, err := r.Parse(input)
-	pp.Print(node)
+	// pp.Print(node)
 	return node, err
 }
 
@@ -20,7 +20,12 @@ func eval(ast *Node, env string) (*Node, error) {
 }
 
 func print(exp *Node) (string, error) {
-	return "OUTPUT", nil
+	p := NewPrinter(exp)
+	output, err := p.ToString()
+	if err != nil {
+		return "", err
+	}
+	return output, nil
 }
 
 // Read Eval Print
@@ -61,9 +66,9 @@ func main() {
 
 		output, err := rep(input)
 		if err != nil {
-			fmt.Println("error:", err)
+			pp.Println("error:", err)
 		} else {
-			fmt.Println(output)
+			pp.Println(output)
 		}
 	}
 }
