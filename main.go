@@ -6,6 +6,8 @@ import (
 
 	"github.com/k0kubun/pp"
 	"github.com/peterh/liner"
+
+	"github.com/choix/slang/s"
 )
 
 func read(input string) (*Node, error) {
