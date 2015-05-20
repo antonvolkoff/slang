@@ -20,7 +20,12 @@ func eval(ast *Node, env string) (*Node, error) {
 }
 
 func print(exp *Node) (string, error) {
-	return "OUTPUT", nil
+	p := NewPrinter(exp)
+	output, err := p.ToString()
+	if err != nil {
+		return "", err
+	}
+	return output, nil
 }
 
 // Read Eval Print
