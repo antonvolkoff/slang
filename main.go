@@ -8,6 +8,8 @@ import (
 )
 
 func read(input string) string {
+	tr := NewTokenReader(input)
+	tr.Run()
 	return input
 }
 
