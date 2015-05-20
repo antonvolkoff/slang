@@ -1,10 +1,10 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
-	"os"
-	"strings"
+	"io"
+
+	"github.com/peterh/liner"
 )
 
 func read(input string) string {
@@ -25,15 +25,20 @@ func rep(input string) string {
 }
 
 func main() {
-	reader := bufio.NewReader(os.Stdin)
-	for {
-		fmt.Print("slang> ")
+	line := liner.NewLiner()
+	defer line.Close()
 
-		input, err := reader.ReadString('\n')
+	fmt.Println("Slang REPL (Ctrl-D to quit)")
+	for {
+		input, err := line.Prompt("slang > ")
 		if err != nil {
+			if err != io.EOF {
+				fmt.Println("ERROR:", err)
+			} else {
+				fmt.Printf("\nBye Bye. See you later!\n")
+			}
 			return
 		}
-		input = strings.TrimRight(input, "\n")
 
 		output := rep(input)
 		fmt.Println(output)
