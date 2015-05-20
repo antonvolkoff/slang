@@ -10,19 +10,19 @@ import (
 	"github.com/choix/slang/s"
 )
 
-func read(input string) (*Node, error) {
-	r := NewReader()
+func read(input string) (*s.Node, error) {
+	r := s.NewReader()
 	node, err := r.Parse(input)
 	// pp.Print(node)
 	return node, err
 }
 
-func eval(ast *Node, env string) (*Node, error) {
+func eval(ast *s.Node, env string) (*s.Node, error) {
 	return ast, nil
 }
 
-func print(exp *Node) (string, error) {
-	p := NewPrinter(exp)
+func print(exp *s.Node) (string, error) {
+	p := s.NewPrinter(exp)
 	output, err := p.ToString()
 	if err != nil {
 		return "", err
