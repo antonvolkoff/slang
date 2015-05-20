@@ -4,26 +4,43 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/k0kubun/pp"
 	"github.com/peterh/liner"
 )
 
-func read(input string) string {
-	tr := NewTokenReader(input)
-	tr.Run()
-	return input
+func read(input string) (*Node, error) {
+	r := NewReader()
+	node, err := r.Parse(input)
+	pp.Print(node)
+	return node, err
 }
 
-func eval(ast string, env string) string {
-	return ast
+func eval(ast *Node, env string) (*Node, error) {
+	return ast, nil
 }
 
-func print(exp string) string {
-	return exp
+func print(exp *Node) (string, error) {
+	return "OUTPUT", nil
 }
 
 // Read Eval Print
-func rep(input string) string {
-	return print(eval(read(input), ""))
+func rep(input string) (string, error) {
+	ast, err := read(input)
+	if err != nil {
+		return "", err
+	}
+
+	exp, err := eval(ast, "")
+	if err != nil {
+		return "", err
+	}
+
+	output, err := print(exp)
+	if err != nil {
+		return "", err
+	}
+
+	return output, nil
 }
 
 func main() {
@@ -42,7 +59,11 @@ func main() {
 			return
 		}
 
-		output := rep(input)
-		fmt.Println(output)
+		output, err := rep(input)
+		if err != nil {
+			fmt.Println("error:", err)
+		} else {
+			fmt.Println(output)
+		}
 	}
 }
