@@ -64,6 +64,7 @@ func (r *Reader) ReadFromTokens() (*Node, error) {
 func (r *Reader) Tokenize(code string) []string {
 	code = strings.Replace(code, "(", "( ", -1)
 	code = strings.Replace(code, ")", " )", -1)
+	code = strings.Replace(code, ",", " ", -1)
 
 	return strings.Fields(code)
 }

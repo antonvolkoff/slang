@@ -59,6 +59,13 @@ var testcases = map[string]*Node{
 		&Node{Type: "number", Value: 1},
 		&Node{Type: "number", Value: 2},
 	}},
+
+	// Commas as whitespace
+	"(1 2, 3,,,,),,": &Node{Type: "list", Children: []*Node{
+		&Node{Type: "number", Value: 1},
+		&Node{Type: "number", Value: 2},
+		&Node{Type: "number", Value: 3},
+	}},
 }
 
 func TestReader_Parse(t *testing.T) {
