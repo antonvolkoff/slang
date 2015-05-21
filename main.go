@@ -10,15 +10,31 @@ import (
 	"github.com/choix/slang/s"
 )
 
+var environment = s.NewEnv()
+
 func read(input string) (*s.Node, error) {
 	r := s.NewReader()
 	node, err := r.Parse(input)
-	// pp.Print(node)
 	return node, err
 }
 
-func eval(ast *s.Node, env string) (*s.Node, error) {
-	return ast, nil
+func eval(ast *s.Node, env *s.Env) (*s.Node, error) {
+	var result *s.Node
+	switch ast.Type {
+	case "list":
+		symbol := ast.Children[0].Value.(string)
+		nodes := ast.Children[1:]
+		var err error
+		result, err = env.Call(symbol, nodes)
+		if err != nil {
+			return nil, err
+		}
+
+	default:
+		result = ast
+	}
+
+	return result, nil
 }
 
 func print(exp *s.Node) (string, error) {
@@ -37,7 +53,7 @@ func rep(input string) (string, error) {
 		return "", err
 	}
 
-	exp, err := eval(ast, "")
+	exp, err := eval(ast, environment)
 	if err != nil {
 		return "", err
 	}
