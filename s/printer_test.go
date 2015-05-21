@@ -59,6 +59,14 @@ var printTestcases = map[string]*Node{
 		&Node{Type: "number", Value: 1},
 		&Node{Type: "number", Value: 2},
 	}},
+
+	// Keywords
+	":kw": &Node{Type: "keyword", Value: "kw"},
+
+	// Map
+	`{"a" 1}`: &Node{Type: "hash", Value: map[*Node]*Node{
+		&Node{Type: "string", Value: "a"}: &Node{Type: "number", Value: 1},
+	}},
 }
 
 func TestPrinter_ToString(t *testing.T) {

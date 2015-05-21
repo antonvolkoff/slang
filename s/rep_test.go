@@ -23,7 +23,7 @@ func TestRep(t *testing.T) {
 	}
 }
 
-func TestRep_Variable(t *testing.T) {
+func TestRep_Def(t *testing.T) {
 	res1, err1 := Rep(`(def x 2)`)
 	assert.NoError(t, err1)
 	assert.Equal(t, "2", res1)

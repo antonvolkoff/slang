@@ -32,11 +32,31 @@ func (p *Printer) nodeToString(n *Node) (string, error) {
 		}
 		output = "(" + strings.Join(body, " ") + ")"
 
+	case "hash":
+		var body []string
+		for key, value := range n.Value.(map[*Node]*Node) {
+			keyStr, err := p.nodeToString(key)
+			if err != nil {
+				return output, err
+			}
+			body = append(body, keyStr)
+
+			valueStr, err := p.nodeToString(value)
+			if err != nil {
+				return output, err
+			}
+			body = append(body, valueStr)
+		}
+		output = "{" + strings.Join(body, " ") + "}"
+
 	case "number":
 		output = fmt.Sprintf("%d", n.Value)
 
 	case "symbol":
 		output = fmt.Sprintf("%s", n.Value)
+
+	case "keyword":
+		output = fmt.Sprintf(":%s", n.Value)
 
 	case "nil":
 		output = "nil"
