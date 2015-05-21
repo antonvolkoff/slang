@@ -10,6 +10,8 @@ func read(input string) (*Node, error) {
 
 func eval(ast *Node, env *Env) (*Node, error) {
 	var result *Node
+	var err error
+
 	switch ast.Type {
 	case "list":
 		symbol := ast.Children[0].Value.(string)
@@ -24,10 +26,23 @@ func eval(ast *Node, env *Env) (*Node, error) {
 
 				nodes[idx] = newNode
 			}
+			if node.Type == "symbol" {
+				newNode, err := eval(node, env)
+				if err != nil {
+					return nil, err
+				}
+
+				nodes[idx] = newNode
+			}
 		}
 
-		var err error
 		result, err = env.Call(symbol, nodes)
+		if err != nil {
+			return nil, err
+		}
+
+	case "symbol":
+		result, err = env.Call(ast.Value.(string), []*Node{})
 		if err != nil {
 			return nil, err
 		}
