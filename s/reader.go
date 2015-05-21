@@ -102,6 +102,10 @@ func (r *Reader) readAtom(n *Node, token string) {
 		val = strings.Replace(val, `\n`, "\n", -1)
 		n.Value = val
 
+	case string(token[0]) == ":":
+		n.Type = "keyword"
+		n.Value = token[1:]
+
 	case token == "nil":
 		n.Type = "nil"
 	case token == "true":

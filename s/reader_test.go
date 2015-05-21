@@ -78,6 +78,14 @@ var testcases = map[string]*Node{
 		&Node{Type: "number", Value: 2},
 		&Node{Type: "number", Value: 3},
 	}},
+
+	// Keywords
+	":kw": &Node{Type: "keyword", Value: "kw"},
+	"(:kw1 :kw2 :kw3)": &Node{Type: "list", Children: []*Node{
+		&Node{Type: "keyword", Value: "kw1"},
+		&Node{Type: "keyword", Value: "kw2"},
+		&Node{Type: "keyword", Value: "kw3"},
+	}},
 }
 
 func TestReader_Parse(t *testing.T) {
