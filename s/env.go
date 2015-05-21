@@ -17,7 +17,11 @@ func NewEnv() *Env {
 		parent: nil,
 	}
 
-	env.defs["+"] = func(nodes []*Node) *Node {
+	return env
+}
+
+func (e *Env) Init() {
+	e.defs["+"] = func(nodes []*Node) *Node {
 		result := 0
 		for _, node := range nodes {
 			result += node.Value.(int)
@@ -25,7 +29,7 @@ func NewEnv() *Env {
 
 		return &Node{Type: "number", Value: result}
 	}
-	env.defs["-"] = func(nodes []*Node) *Node {
+	e.defs["-"] = func(nodes []*Node) *Node {
 		result := nodes[0].Value.(int)
 		for _, node := range nodes[1:] {
 			result -= node.Value.(int)
@@ -33,7 +37,7 @@ func NewEnv() *Env {
 
 		return &Node{Type: "number", Value: result}
 	}
-	env.defs["*"] = func(nodes []*Node) *Node {
+	e.defs["*"] = func(nodes []*Node) *Node {
 		result := nodes[0].Value.(int)
 		for _, node := range nodes[1:] {
 			result *= node.Value.(int)
@@ -41,7 +45,7 @@ func NewEnv() *Env {
 
 		return &Node{Type: "number", Value: result}
 	}
-	env.defs["/"] = func(nodes []*Node) *Node {
+	e.defs["/"] = func(nodes []*Node) *Node {
 		result := nodes[0].Value.(int)
 		for _, node := range nodes[1:] {
 			result /= node.Value.(int)
@@ -49,8 +53,6 @@ func NewEnv() *Env {
 
 		return &Node{Type: "number", Value: result}
 	}
-
-	return env
 }
 
 func (e *Env) Call(sym string, nodes []*Node) (*Node, error) {

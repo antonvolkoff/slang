@@ -108,6 +108,7 @@ func print(exp *Node) (string, error) {
 
 // Read Eval Print
 func Rep(input string) (string, error) {
+	environment.Init()
 	ast, err := read(input)
 	if err != nil {
 		return "", err

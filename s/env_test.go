@@ -8,6 +8,8 @@ import (
 
 func TestSum(t *testing.T) {
 	e := NewEnv()
+	e.Init()
+
 	nodes := []*Node{
 		&Node{Type: "number", Value: 2},
 		&Node{Type: "number", Value: 3},
@@ -22,6 +24,8 @@ func TestSum(t *testing.T) {
 
 func TestSub(t *testing.T) {
 	e := NewEnv()
+	e.Init()
+
 	nodes := []*Node{
 		&Node{Type: "number", Value: 10},
 		&Node{Type: "number", Value: 3},
@@ -36,6 +40,8 @@ func TestSub(t *testing.T) {
 
 func TestMult(t *testing.T) {
 	e := NewEnv()
+	e.Init()
+
 	nodes := []*Node{
 		&Node{Type: "number", Value: 10},
 		&Node{Type: "number", Value: 5},
@@ -50,6 +56,8 @@ func TestMult(t *testing.T) {
 
 func TestDiv(t *testing.T) {
 	e := NewEnv()
+	e.Init()
+
 	nodes := []*Node{
 		&Node{Type: "number", Value: 50},
 		&Node{Type: "number", Value: 5},
@@ -64,6 +72,7 @@ func TestDiv(t *testing.T) {
 
 func TestEnv_Define(t *testing.T) {
 	e := NewEnv()
+	e.Init()
 
 	result1 := e.Define(
 		&Node{Type: "symbol", Value: "test"},
@@ -80,6 +89,7 @@ func TestEnv_Define(t *testing.T) {
 
 func TestEnv_NewChild(t *testing.T) {
 	parent := NewEnv()
+	parent.Init()
 	child := parent.NewChild()
 
 	assert.Equal(t, parent, child.parent)
