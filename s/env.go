@@ -47,6 +47,16 @@ func NewEnv() *Env {
 
 		return &Node{Type: "number", Value: result}
 	}
+	env.defs["def"] = func(nodes []*Node) *Node {
+		sym := nodes[0].Value.(string)
+		node := nodes[1]
+
+		env.defs[sym] = func(nodes []*Node) *Node {
+			return node
+		}
+
+		return node
+	}
 
 	return env
 }
