@@ -58,3 +58,11 @@ func (e *Env) Call(sym string, nodes []*Node) (*Node, error) {
 	}
 	return fn(nodes), nil
 }
+
+func (e *Env) Define(symbol *Node, value *Node) *Node {
+	e.defs[symbol.Value.(string)] = func(nodes []*Node) *Node {
+		return value
+	}
+
+	return value
+}

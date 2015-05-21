@@ -61,3 +61,19 @@ func TestDiv(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, &Node{Type: "number", Value: 5}, result)
 }
+
+func TestEnv_Define(t *testing.T) {
+	e := NewEnv()
+
+	result1 := e.Define(
+		&Node{Type: "symbol", Value: "test"},
+		&Node{Type: "number", Value: 42},
+	)
+
+	assert.Equal(t, &Node{Type: "number", Value: 42}, result1)
+
+	result2, err := e.Call("test", []*Node{})
+
+	assert.NoError(t, err)
+	assert.Equal(t, &Node{Type: "number", Value: 42}, result2)
+}
