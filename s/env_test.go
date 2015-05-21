@@ -155,6 +155,13 @@ func TestEnv_Call_If(t *testing.T) {
 	})
 	assert.NoError(t, err3)
 	assert.Equal(t, &Node{Type: "number", Value: 2}, result3)
+
+	result4, err4 := e.Call("if", []*Node{
+		&Node{Type: "nil"},
+		&Node{Type: "number", Value: 1},
+	})
+	assert.NoError(t, err4)
+	assert.Equal(t, &Node{Type: "nil"}, result4)
 }
 
 func TestEnv_Define(t *testing.T) {

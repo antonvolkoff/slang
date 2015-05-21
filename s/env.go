@@ -83,7 +83,12 @@ func (e *Env) Init() {
 	e.defs["if"] = func(nodes []*Node) *Node {
 		cond := nodes[0]
 		ifTrue := nodes[1]
-		ifFalse := nodes[2]
+		var ifFalse *Node
+		if len(nodes) == 3 {
+			ifFalse = nodes[2]
+		} else {
+			ifFalse = &Node{Type: "nil"}
+		}
 
 		if cond.Type == "false" || cond.Type == "nil" {
 			return ifFalse
