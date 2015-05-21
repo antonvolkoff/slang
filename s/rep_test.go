@@ -76,3 +76,22 @@ func TestRep_Outer(t *testing.T) {
 	assert.NoError(t, err5)
 	assert.Equal(t, "4", res5)
 }
+
+var listCases = map[string]string{
+	"(list)":               "()",
+	"(list? (list))":       "true",
+	"(empty? (list))":      "true",
+	"(empty? (list 1))":    "false",
+	"(list 1 2 3)":         "(1 2 3)",
+	"(count (list 1 2 3))": "3",
+	"(count (list))":       "0",
+	"(count nil)":          "0",
+}
+
+func TestRep_Lists(t *testing.T) {
+	for input, output := range listCases {
+		res, err := Rep(input)
+		assert.NoError(t, err)
+		assert.Equal(t, output, res)
+	}
+}

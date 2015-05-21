@@ -56,13 +56,27 @@ func (e *Env) Init() {
 
 	// List functions
 	e.defs["list"] = func(nodes []*Node) *Node {
-		return &Node{Type: "list"}
+		n := &Node{Type: "list", Children: nodes}
+		return n
 	}
 	e.defs["list?"] = func(nodes []*Node) *Node {
 		if nodes[0].Type == "list" {
 			return &Node{Type: "true"}
 		}
 		return &Node{Type: "false"}
+	}
+	e.defs["empty?"] = func(nodes []*Node) *Node {
+		list := nodes[0]
+		if len(list.Children) == 0 {
+			return &Node{Type: "true"}
+		}
+
+		return &Node{Type: "false"}
+	}
+	e.defs["count"] = func(nodes []*Node) *Node {
+		list := nodes[0]
+		count := len(list.Children)
+		return &Node{Type: "number", Value: count}
 	}
 }
 

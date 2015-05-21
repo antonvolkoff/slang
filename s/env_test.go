@@ -76,15 +76,56 @@ func TestEnv_Call_ListFunctions(t *testing.T) {
 
 	result1, err1 := e.Call("list", []*Node{})
 	assert.NoError(t, err1)
-	assert.Equal(t, &Node{Type: "list"}, result1)
+	assert.Equal(t, &Node{Type: "list", Children: []*Node{}}, result1)
 
-	result2, err2 := e.Call("list?", []*Node{&Node{Type: "list"}})
+	result2, err2 := e.Call("list", []*Node{
+		&Node{Type: "number", Value: 1}, &Node{Type: "number", Value: 2}})
 	assert.NoError(t, err2)
-	assert.Equal(t, &Node{Type: "true"}, result2)
+	expected := &Node{Type: "list", Children: []*Node{
+		&Node{Type: "number", Value: 1}, &Node{Type: "number", Value: 2}}}
+	assert.Equal(t, expected, result2)
 
-	result3, err3 := e.Call("list?", []*Node{&Node{Type: "number"}})
+	result3, err3 := e.Call("list?", []*Node{&Node{Type: "list"}})
 	assert.NoError(t, err3)
-	assert.Equal(t, &Node{Type: "false"}, result3)
+	assert.Equal(t, &Node{Type: "true"}, result3)
+
+	result4, err4 := e.Call("list?", []*Node{&Node{Type: "number"}})
+	assert.NoError(t, err4)
+	assert.Equal(t, &Node{Type: "false"}, result4)
+}
+
+func TestEnv_Call_Empty(t *testing.T) {
+	e := NewEnv()
+	e.Init()
+
+	result1, err1 := e.Call("empty?", []*Node{
+		&Node{Type: "list", Children: []*Node{}},
+	})
+	assert.NoError(t, err1)
+	assert.Equal(t, &Node{Type: "true"}, result1)
+
+	result2, err2 := e.Call("empty?", []*Node{
+		&Node{Type: "list", Children: []*Node{&Node{Type: "number", Value: 1}}},
+	})
+	assert.NoError(t, err2)
+	assert.Equal(t, &Node{Type: "false"}, result2)
+}
+
+func TestEnv_Call_Count(t *testing.T) {
+	e := NewEnv()
+	e.Init()
+
+	result1, err1 := e.Call("count", []*Node{
+		&Node{Type: "list", Children: []*Node{}},
+	})
+	assert.NoError(t, err1)
+	assert.Equal(t, &Node{Type: "number", Value: 0}, result1)
+
+	result2, err2 := e.Call("count", []*Node{
+		&Node{Type: "list", Children: []*Node{&Node{Type: "number", Value: 1}}},
+	})
+	assert.NoError(t, err2)
+	assert.Equal(t, &Node{Type: "number", Value: 1}, result2)
 }
 
 func TestEnv_Define(t *testing.T) {
