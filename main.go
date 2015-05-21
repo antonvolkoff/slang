@@ -4,10 +4,8 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/k0kubun/pp"
-	"github.com/peterh/liner"
-
 	"github.com/choix/slang/s"
+	"github.com/peterh/liner"
 )
 
 func main() {
@@ -28,9 +26,9 @@ func main() {
 
 		output, err := s.Rep(input)
 		if err != nil {
-			pp.Println("error:", err)
+			fmt.Println("error:", err)
 		} else {
-			pp.Println(output)
+			fmt.Println(output)
 		}
 	}
 }
