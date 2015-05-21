@@ -106,6 +106,8 @@ var ifCases = map[string]string{
 	`(if "" 7 8)`:                "7",
 	"(if (list) 7 8)":            "7",
 	"(if (list 1 2 3) 7 8)":      "7",
+	"(if false (+ 1 7))":         "nil",
+	"(if true (+ 1 7))":          "8",
 }
 
 func TestRep_If(t *testing.T) {
