@@ -38,6 +38,18 @@ func (p *Printer) nodeToString(n *Node) (string, error) {
 	case "symbol":
 		output = fmt.Sprintf("%s", n.Value)
 
+	case "nil":
+		output = "nil"
+
+	case "true":
+		output = "true"
+
+	case "false":
+		output = "false"
+
+	case "string":
+		output = fmt.Sprintf(`"%s"`, n.Value)
+
 	default:
 		return "", fmt.Errorf("Unknown type '%s'", n.Type)
 	}
