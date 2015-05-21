@@ -40,3 +40,9 @@ func TestRep_Def(t *testing.T) {
 	assert.NoError(t, err4)
 	assert.Equal(t, "8", res4)
 }
+
+func TestRep_Let(t *testing.T) {
+	res1, err1 := Rep(`(let {z 9} z)`)
+	assert.NoError(t, err1)
+	assert.Equal(t, "9", res1)
+}

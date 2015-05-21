@@ -77,3 +77,17 @@ func TestEnv_Define(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, &Node{Type: "number", Value: 42}, result2)
 }
+
+func TestEnv_NewChild(t *testing.T) {
+	parent := NewEnv()
+	child := parent.NewChild()
+
+	assert.Equal(t, parent, child.parent)
+
+	parent.Define(&Node{Type: "symbol", Value: "x"}, &Node{Type: "number", Value: 3})
+
+	node, err := child.Call("x", []*Node{})
+
+	assert.NoError(t, err)
+	assert.Equal(t, &Node{Type: "number", Value: 3}, node)
+}

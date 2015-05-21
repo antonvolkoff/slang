@@ -7,12 +7,14 @@ import (
 type EnvFunc func([]*Node) *Node
 
 type Env struct {
-	defs map[string]EnvFunc
+	defs   map[string]EnvFunc
+	parent *Env
 }
 
 func NewEnv() *Env {
 	env := &Env{
-		defs: make(map[string]EnvFunc),
+		defs:   make(map[string]EnvFunc),
+		parent: nil,
 	}
 
 	env.defs["+"] = func(nodes []*Node) *Node {
@@ -54,6 +56,9 @@ func NewEnv() *Env {
 func (e *Env) Call(sym string, nodes []*Node) (*Node, error) {
 	fn, ok := e.defs[sym]
 	if !ok {
+		if e.parent != nil {
+			return e.parent.Call(sym, nodes)
+		}
 		return nil, fmt.Errorf("Undefined call to %s", sym)
 	}
 	return fn(nodes), nil
@@ -65,4 +70,10 @@ func (e *Env) Define(symbol *Node, value *Node) *Node {
 	}
 
 	return value
+}
+
+func (e *Env) NewChild() *Env {
+	env := NewEnv()
+	env.parent = e
+	return env
 }
