@@ -30,7 +30,33 @@ func eval(ast *Node, env *Env) (*Node, error) {
 		}
 
 		if symbol == "let" {
-			result = &Node{Type: "number", Value: 9}
+			childEnv := env.NewChild()
+
+			defs := nodes[0]
+			for symbol, value := range defs.Value.(map[*Node]*Node) {
+				if value.Type == "list" {
+					value, err = eval(value, childEnv)
+					if err != nil {
+						return nil, err
+					}
+				}
+				if value.Type == "symbol" {
+					value, err = eval(value, childEnv)
+					if err != nil {
+						return nil, err
+					}
+				}
+
+				childEnv.Define(symbol, value)
+			}
+
+			exps := nodes[1]
+			newNode, err := eval(exps, childEnv)
+			if err != nil {
+				return nil, err
+			}
+
+			result = newNode
 			break
 		}
 
