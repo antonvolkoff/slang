@@ -17,7 +17,11 @@ func NewEnv() *Env {
 		parent: nil,
 	}
 
-	env.defs["+"] = func(nodes []*Node) *Node {
+	return env
+}
+
+func (e *Env) Init() {
+	e.defs["+"] = func(nodes []*Node) *Node {
 		result := 0
 		for _, node := range nodes {
 			result += node.Value.(int)
@@ -25,7 +29,7 @@ func NewEnv() *Env {
 
 		return &Node{Type: "number", Value: result}
 	}
-	env.defs["-"] = func(nodes []*Node) *Node {
+	e.defs["-"] = func(nodes []*Node) *Node {
 		result := nodes[0].Value.(int)
 		for _, node := range nodes[1:] {
 			result -= node.Value.(int)
@@ -33,7 +37,7 @@ func NewEnv() *Env {
 
 		return &Node{Type: "number", Value: result}
 	}
-	env.defs["*"] = func(nodes []*Node) *Node {
+	e.defs["*"] = func(nodes []*Node) *Node {
 		result := nodes[0].Value.(int)
 		for _, node := range nodes[1:] {
 			result *= node.Value.(int)
@@ -41,7 +45,7 @@ func NewEnv() *Env {
 
 		return &Node{Type: "number", Value: result}
 	}
-	env.defs["/"] = func(nodes []*Node) *Node {
+	e.defs["/"] = func(nodes []*Node) *Node {
 		result := nodes[0].Value.(int)
 		for _, node := range nodes[1:] {
 			result /= node.Value.(int)
@@ -50,7 +54,30 @@ func NewEnv() *Env {
 		return &Node{Type: "number", Value: result}
 	}
 
-	return env
+	// List functions
+	e.defs["list"] = func(nodes []*Node) *Node {
+		n := &Node{Type: "list", Children: nodes}
+		return n
+	}
+	e.defs["list?"] = func(nodes []*Node) *Node {
+		if nodes[0].Type == "list" {
+			return &Node{Type: "true"}
+		}
+		return &Node{Type: "false"}
+	}
+	e.defs["empty?"] = func(nodes []*Node) *Node {
+		list := nodes[0]
+		if len(list.Children) == 0 {
+			return &Node{Type: "true"}
+		}
+
+		return &Node{Type: "false"}
+	}
+	e.defs["count"] = func(nodes []*Node) *Node {
+		list := nodes[0]
+		count := len(list.Children)
+		return &Node{Type: "number", Value: count}
+	}
 }
 
 func (e *Env) Call(sym string, nodes []*Node) (*Node, error) {
