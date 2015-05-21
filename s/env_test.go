@@ -70,6 +70,23 @@ func TestDiv(t *testing.T) {
 	assert.Equal(t, &Node{Type: "number", Value: 5}, result)
 }
 
+func TestEnv_Call_ListFunctions(t *testing.T) {
+	e := NewEnv()
+	e.Init()
+
+	result1, err1 := e.Call("list", []*Node{})
+	assert.NoError(t, err1)
+	assert.Equal(t, &Node{Type: "list"}, result1)
+
+	result2, err2 := e.Call("list?", []*Node{&Node{Type: "list"}})
+	assert.NoError(t, err2)
+	assert.Equal(t, &Node{Type: "true"}, result2)
+
+	result3, err3 := e.Call("list?", []*Node{&Node{Type: "number"}})
+	assert.NoError(t, err3)
+	assert.Equal(t, &Node{Type: "false"}, result3)
+}
+
 func TestEnv_Define(t *testing.T) {
 	e := NewEnv()
 	e.Init()

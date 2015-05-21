@@ -53,6 +53,17 @@ func (e *Env) Init() {
 
 		return &Node{Type: "number", Value: result}
 	}
+
+	// List functions
+	e.defs["list"] = func(nodes []*Node) *Node {
+		return &Node{Type: "list"}
+	}
+	e.defs["list?"] = func(nodes []*Node) *Node {
+		if nodes[0].Type == "list" {
+			return &Node{Type: "true"}
+		}
+		return &Node{Type: "false"}
+	}
 }
 
 func (e *Env) Call(sym string, nodes []*Node) (*Node, error) {
