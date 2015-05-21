@@ -62,20 +62,18 @@ func TestDiv(t *testing.T) {
 	assert.Equal(t, &Node{Type: "number", Value: 5}, result)
 }
 
-func TestDef(t *testing.T) {
+func TestEnv_Define(t *testing.T) {
 	e := NewEnv()
-	nodes := []*Node{
-		&Node{Type: "symbol", Value: "x"},
-		&Node{Type: "number", Value: 5},
-	}
 
-	result, err := e.Call("def", nodes)
+	result1 := e.Define(
+		&Node{Type: "symbol", Value: "test"},
+		&Node{Type: "number", Value: 42},
+	)
+
+	assert.Equal(t, &Node{Type: "number", Value: 42}, result1)
+
+	result2, err := e.Call("test", []*Node{})
 
 	assert.NoError(t, err)
-	assert.Equal(t, &Node{Type: "number", Value: 5}, result)
-
-	x, err2 := e.Call("x", []*Node{})
-
-	assert.NoError(t, err2)
-	assert.Equal(t, &Node{Type: "number", Value: 5}, x)
+	assert.Equal(t, &Node{Type: "number", Value: 42}, result2)
 }

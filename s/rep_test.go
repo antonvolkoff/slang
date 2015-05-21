@@ -24,7 +24,7 @@ func TestRep(t *testing.T) {
 }
 
 func TestRep_Variable(t *testing.T) {
-	res1, err1 := Rep(`(def "x" 2)`)
+	res1, err1 := Rep(`(def x 2)`)
 	assert.NoError(t, err1)
 	assert.Equal(t, "2", res1)
 
@@ -35,4 +35,8 @@ func TestRep_Variable(t *testing.T) {
 	res3, err3 := Rep("(+ 2 x)")
 	assert.NoError(t, err3)
 	assert.Equal(t, "4", res3)
+
+	res4, err4 := Rep("(def y (+ 1 7))")
+	assert.NoError(t, err4)
+	assert.Equal(t, "8", res4)
 }

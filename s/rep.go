@@ -17,6 +17,18 @@ func eval(ast *Node, env *Env) (*Node, error) {
 		symbol := ast.Children[0].Value.(string)
 		nodes := ast.Children[1:]
 
+		if symbol == "def" {
+			if nodes[1].Type == "list" {
+				newNode, err := eval(nodes[1], env)
+				if err != nil {
+					return nil, err
+				}
+				nodes[1] = newNode
+			}
+			result = env.Define(nodes[0], nodes[1])
+			break
+		}
+
 		for idx, node := range nodes {
 			if node.Type == "list" {
 				newNode, err := eval(node, env)
