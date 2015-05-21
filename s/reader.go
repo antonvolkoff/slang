@@ -80,12 +80,18 @@ func (r *Reader) next() string {
 }
 
 func (r *Reader) readAtom(n *Node, token string) {
-	if unicode.IsNumber(rune(token[0])) {
+	switch {
+	case unicode.IsNumber(rune(token[0])):
 		n.Type = "number"
-
 		val, _ := strconv.Atoi(token)
 		n.Value = val
-	} else {
+	case token == "nil":
+		n.Type = "nil"
+	case token == "true":
+		n.Type = "true"
+	case token == "false":
+		n.Type = "false"
+	default:
 		n.Type = "symbol"
 		n.Value = token
 	}

@@ -7,6 +7,11 @@ import (
 )
 
 var testcases = map[string]*Node{
+	// true, false and nil
+	"nil":   &Node{Type: "nil"},
+	"true":  &Node{Type: "true"},
+	"false": &Node{Type: "false"},
+
 	// Numbers
 	"1":     &Node{Type: "number", Value: 1},
 	"7":     &Node{Type: "number", Value: 7},
