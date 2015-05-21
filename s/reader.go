@@ -55,6 +55,30 @@ func (r *Reader) ReadFromTokens() (*Node, error) {
 	case ")":
 		return nil, fmt.Errorf("unexpected ) at %d", r.position)
 
+	case "{":
+		n.Type = "hash"
+		hash := map[*Node]*Node{}
+		for {
+			key, err := r.ReadFromTokens()
+			if err != nil {
+				return nil, err
+			}
+			value, err := r.ReadFromTokens()
+			if err != nil {
+				return nil, err
+			}
+			hash[key] = value
+
+			if r.next() == "}" {
+				r.peek() // Move to next one
+				break
+			}
+		}
+		n.Value = hash
+
+	case "}":
+		return nil, fmt.Errorf("unexpected } at %d", r.position)
+
 	default:
 		r.readAtom(n, token)
 	}
@@ -101,6 +125,10 @@ func (r *Reader) readAtom(n *Node, token string) {
 		val = strings.Replace(val, `\"`, `"`, -1)
 		val = strings.Replace(val, `\n`, "\n", -1)
 		n.Value = val
+
+	case string(token[0]) == ":":
+		n.Type = "keyword"
+		n.Value = token[1:]
 
 	case token == "nil":
 		n.Type = "nil"

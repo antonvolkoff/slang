@@ -3,6 +3,7 @@ package s
 import (
 	"testing"
 
+	// "github.com/k0kubun/pp"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -78,6 +79,24 @@ var testcases = map[string]*Node{
 		&Node{Type: "number", Value: 2},
 		&Node{Type: "number", Value: 3},
 	}},
+
+	// Keywords
+	":kw": &Node{Type: "keyword", Value: "kw"},
+	"(:kw1 :kw2 :kw3)": &Node{Type: "list", Children: []*Node{
+		&Node{Type: "keyword", Value: "kw1"},
+		&Node{Type: "keyword", Value: "kw2"},
+		&Node{Type: "keyword", Value: "kw3"},
+	}},
+
+	// Hash
+	`{"abc" 1}`: &Node{Type: "hash", Value: map[*Node]*Node{
+		&Node{Type: "string", Value: "abc"}: &Node{Type: "number", Value: 1},
+	}},
+	`{"a" {"b" 2}}`: &Node{Type: "hash", Value: map[*Node]*Node{
+		&Node{Type: "string", Value: "a"}: &Node{Type: "hash", Value: map[*Node]*Node{
+			&Node{Type: "string", Value: "b"}: &Node{Type: "number", Value: 2},
+		}},
+	}},
 }
 
 func TestReader_Parse(t *testing.T) {
@@ -87,7 +106,13 @@ func TestReader_Parse(t *testing.T) {
 
 		assert.NoError(t, err)
 		if assert.NotNil(t, n) {
-			assert.Equal(t, node, n)
+			if n.Type == "hash" {
+				expectedHash := node.Value.(map[*Node]*Node)
+				actualHash := n.Value.(map[*Node]*Node)
+				assert.Equal(t, len(expectedHash), len(actualHash))
+			} else {
+				assert.Equal(t, node, n)
+			}
 		}
 	}
 }
