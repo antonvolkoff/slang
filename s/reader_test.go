@@ -24,6 +24,13 @@ var testcases = map[string]*Node{
 	"abc5":      &Node{Type: "symbol", Value: "abc5"},
 	"abc-def":   &Node{Type: "symbol", Value: "abc-def"},
 
+	// Strings
+	`"abc"`:               &Node{Type: "string", Value: "abc"},
+	`   "abc"   `:         &Node{Type: "string", Value: "abc"},
+	`"abc (with parens)"`: &Node{Type: "string", Value: "abc (with parens)"},
+	`"abc\"def"`:          &Node{Type: "string", Value: "abc\"def"},
+	`""`:                  &Node{Type: "string", Value: ""},
+
 	// Lists
 	"(+ 1 2)": &Node{Type: "list", Children: []*Node{
 		&Node{Type: "symbol", Value: "+"},

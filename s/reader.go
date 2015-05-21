@@ -2,6 +2,7 @@ package s
 
 import (
 	"fmt"
+	"regexp"
 	"strconv"
 	"strings"
 	"unicode"
@@ -62,11 +63,18 @@ func (r *Reader) ReadFromTokens() (*Node, error) {
 }
 
 func (r *Reader) Tokenize(code string) []string {
-	code = strings.Replace(code, "(", "( ", -1)
-	code = strings.Replace(code, ")", " )", -1)
-	code = strings.Replace(code, ",", " ", -1)
-
-	return strings.Fields(code)
+	results := make([]string, 0, 1)
+	// Work around lack of quoting in backtick
+	re := regexp.MustCompile(`[\s,]*(~@|[\[\]{}()'` + "`" +
+		`~^@]|"(?:\\.|[^\\"])*"|;.*|[^\s\[\]{}('"` + "`" +
+		`,;)]*)`)
+	for _, group := range re.FindAllStringSubmatch(code, -1) {
+		if (group[1] == "") || (group[1][0] == ';') {
+			continue
+		}
+		results = append(results, group[1])
+	}
+	return results
 }
 
 func (r *Reader) peek() string {
@@ -85,6 +93,15 @@ func (r *Reader) readAtom(n *Node, token string) {
 		n.Type = "number"
 		val, _ := strconv.Atoi(token)
 		n.Value = val
+
+	case string(token[0]) == `"` && string(token[len(token)-1]) == `"`:
+		n.Type = "string"
+		var val string
+		val = token[1 : len(token)-1]
+		val = strings.Replace(val, `\"`, `"`, -1)
+		val = strings.Replace(val, `\n`, "\n", -1)
+		n.Value = val
+
 	case token == "nil":
 		n.Type = "nil"
 	case token == "true":
