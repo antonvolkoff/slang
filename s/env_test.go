@@ -128,6 +128,35 @@ func TestEnv_Call_Count(t *testing.T) {
 	assert.Equal(t, &Node{Type: "number", Value: 1}, result2)
 }
 
+func TestEnv_Call_If(t *testing.T) {
+	e := NewEnv()
+	e.Init()
+
+	result1, err1 := e.Call("if", []*Node{
+		&Node{Type: "true"},
+		&Node{Type: "number", Value: 1},
+		&Node{Type: "number", Value: 2},
+	})
+	assert.NoError(t, err1)
+	assert.Equal(t, &Node{Type: "number", Value: 1}, result1)
+
+	result2, err2 := e.Call("if", []*Node{
+		&Node{Type: "false"},
+		&Node{Type: "number", Value: 1},
+		&Node{Type: "number", Value: 2},
+	})
+	assert.NoError(t, err2)
+	assert.Equal(t, &Node{Type: "number", Value: 2}, result2)
+
+	result3, err3 := e.Call("if", []*Node{
+		&Node{Type: "nil"},
+		&Node{Type: "number", Value: 1},
+		&Node{Type: "number", Value: 2},
+	})
+	assert.NoError(t, err3)
+	assert.Equal(t, &Node{Type: "number", Value: 2}, result3)
+}
+
 func TestEnv_Define(t *testing.T) {
 	e := NewEnv()
 	e.Init()

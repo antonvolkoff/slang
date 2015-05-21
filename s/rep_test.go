@@ -95,3 +95,23 @@ func TestRep_Lists(t *testing.T) {
 		assert.Equal(t, output, res)
 	}
 }
+
+var ifCases = map[string]string{
+	"(if true 7 8)":              "7",
+	"(if false 7 8)":             "8",
+	"(if true (+ 1 7) (+ 1 8))":  "8",
+	"(if false (+ 1 7) (+ 1 8))": "9",
+	"(if nil 7 8)":               "8",
+	"(if 0 7 8)":                 "7",
+	`(if "" 7 8)`:                "7",
+	"(if (list) 7 8)":            "7",
+	"(if (list 1 2 3) 7 8)":      "7",
+}
+
+func TestRep_If(t *testing.T) {
+	for input, output := range ifCases {
+		res, err := Rep(input)
+		assert.NoError(t, err)
+		assert.Equal(t, output, res)
+	}
+}

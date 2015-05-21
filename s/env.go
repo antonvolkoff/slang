@@ -78,6 +78,19 @@ func (e *Env) Init() {
 		count := len(list.Children)
 		return &Node{Type: "number", Value: count}
 	}
+
+	// If condition
+	e.defs["if"] = func(nodes []*Node) *Node {
+		cond := nodes[0]
+		ifTrue := nodes[1]
+		ifFalse := nodes[2]
+
+		if cond.Type == "false" || cond.Type == "nil" {
+			return ifFalse
+		} else {
+			return ifTrue
+		}
+	}
 }
 
 func (e *Env) Call(sym string, nodes []*Node) (*Node, error) {
