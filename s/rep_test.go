@@ -125,6 +125,22 @@ var condCases = map[string]string{
 	"(= 2 (+ 1 1))": "true",
 	"(= nil 1)":     "false",
 	"(= nil nil)":   "true",
+
+	"(> 2 1)": "true",
+	"(> 1 1)": "false",
+	"(> 1 2)": "false",
+
+	"(>= 2 1)": "true",
+	"(>= 1 1)": "true",
+	"(>= 1 2)": "false",
+
+	"(< 2 1)": "false",
+	"(< 1 1)": "false",
+	"(< 1 2)": "true",
+
+	"(<= 2 1)": "false",
+	"(<= 1 1)": "true",
+	"(<= 1 2)": "true",
 }
 
 func TestRep_Cond(t *testing.T) {

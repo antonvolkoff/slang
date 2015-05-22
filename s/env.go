@@ -107,6 +107,42 @@ func (e *Env) Init() {
 			return &Node{Type: "false"}
 		}
 	}
+	e.defs[">"] = func(nodes []*Node) *Node {
+		left := nodes[0].Value.(int)
+		right := nodes[1].Value.(int)
+		if left > right {
+			return &Node{Type: "true"}
+		} else {
+			return &Node{Type: "false"}
+		}
+	}
+	e.defs[">="] = func(nodes []*Node) *Node {
+		left := nodes[0].Value.(int)
+		right := nodes[1].Value.(int)
+		if left >= right {
+			return &Node{Type: "true"}
+		} else {
+			return &Node{Type: "false"}
+		}
+	}
+	e.defs["<="] = func(nodes []*Node) *Node {
+		left := nodes[0].Value.(int)
+		right := nodes[1].Value.(int)
+		if left <= right {
+			return &Node{Type: "true"}
+		} else {
+			return &Node{Type: "false"}
+		}
+	}
+	e.defs["<"] = func(nodes []*Node) *Node {
+		left := nodes[0].Value.(int)
+		right := nodes[1].Value.(int)
+		if left < right {
+			return &Node{Type: "true"}
+		} else {
+			return &Node{Type: "false"}
+		}
+	}
 }
 
 func (e *Env) Call(sym string, nodes []*Node) (*Node, error) {
