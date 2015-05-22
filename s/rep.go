@@ -2,23 +2,23 @@ package s
 
 var environment = NewEnv()
 
-func read(input string) (*Node, error) {
+func read(input string) (Item, error) {
 	r := NewReader()
 	node, err := r.Parse(input)
 	return node, err
 }
 
-func eval(ast *Node, env *Env) (*Node, error) {
-	var result *Node
+func eval(ast Item, env *Env) (Item, error) {
+	var result Item
 	var err error
 
-	switch ast.Type {
-	case "list":
-		symbol := ast.Children[0].Value.(string)
-		nodes := ast.Children[1:]
+	switch v := ast.(type) {
+	case List:
+		symbol := v.Value[0].(Symbol)
+		nodes := v.Value[1:]
 
-		if symbol == "def" {
-			if nodes[1].Type == "list" {
+		if symbol.Value == "def" {
+			if nodes[1].IsList() {
 				newNode, err := eval(nodes[1], env)
 				if err != nil {
 					return nil, err
@@ -29,18 +29,19 @@ func eval(ast *Node, env *Env) (*Node, error) {
 			break
 		}
 
-		if symbol == "let" {
+		if symbol.Value == "let" {
 			childEnv := env.NewChild()
 
-			defs := nodes[0]
-			for symbol, value := range defs.Value.(map[*Node]*Node) {
-				if value.Type == "list" {
+			defs := nodes[0].(Hash)
+			var value Item
+			for _, kv := range defs.Value {
+				if kv.Value.IsList() {
 					value, err = eval(value, childEnv)
 					if err != nil {
 						return nil, err
 					}
 				}
-				if value.Type == "symbol" {
+				if kv.Value.IsSymbol() {
 					value, err = eval(value, childEnv)
 					if err != nil {
 						return nil, err
@@ -61,7 +62,7 @@ func eval(ast *Node, env *Env) (*Node, error) {
 		}
 
 		for idx, node := range nodes {
-			if node.Type == "list" {
+			if node.IsList() {
 				newNode, err := eval(node, env)
 				if err != nil {
 					return nil, err
@@ -69,7 +70,7 @@ func eval(ast *Node, env *Env) (*Node, error) {
 
 				nodes[idx] = newNode
 			}
-			if node.Type == "symbol" {
+			if node.IsSymbol() {
 				newNode, err := eval(node, env)
 				if err != nil {
 					return nil, err
@@ -79,13 +80,13 @@ func eval(ast *Node, env *Env) (*Node, error) {
 			}
 		}
 
-		result, err = env.Call(symbol, nodes)
+		result, err = env.Call(symbol.Value, nodes)
 		if err != nil {
 			return nil, err
 		}
 
-	case "symbol":
-		result, err = env.Call(ast.Value.(string), []*Node{})
+	case Symbol:
+		result, err = env.Call(v.Value, []Item{})
 		if err != nil {
 			return nil, err
 		}
@@ -97,7 +98,7 @@ func eval(ast *Node, env *Env) (*Node, error) {
 	return result, nil
 }
 
-func print(exp *Node) (string, error) {
+func print(exp Item) (string, error) {
 	p := NewPrinter(exp)
 	output, err := p.ToString()
 	if err != nil {
