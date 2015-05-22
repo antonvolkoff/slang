@@ -1,5 +1,9 @@
 package s
 
+import (
+	"fmt"
+)
+
 var environment = NewEnv()
 
 func read(input string) (Item, error) {
@@ -11,6 +15,8 @@ func read(input string) (Item, error) {
 func eval(ast Item, env *Env) (Item, error) {
 	var result Item
 	var err error
+
+	fmt.Println("Eval", ast)
 
 	switch v := ast.(type) {
 	case List:
@@ -33,22 +39,25 @@ func eval(ast Item, env *Env) (Item, error) {
 			childEnv := env.NewChild()
 
 			defs := nodes[0].(Hash)
-			var value Item
 			for _, kv := range defs.Value {
-				if kv.Value.IsList() {
-					value, err = eval(value, childEnv)
+				var value Item
+				switch {
+				case kv.Value.IsList():
+					value, err = eval(kv.Value, childEnv)
 					if err != nil {
 						return nil, err
 					}
-				}
-				if kv.Value.IsSymbol() {
-					value, err = eval(value, childEnv)
+				case kv.Value.IsSymbol():
+					value, err = eval(kv.Value, childEnv)
 					if err != nil {
 						return nil, err
 					}
+				default:
+					value = kv.Value
 				}
 
-				childEnv.Define(symbol, value)
+				fmt.Println("Define", kv.Key, value)
+				childEnv.Define(kv.Key, value)
 			}
 
 			exps := nodes[1]
@@ -80,6 +89,7 @@ func eval(ast Item, env *Env) (Item, error) {
 			}
 		}
 
+		fmt.Println("Call", symbol.Value, nodes)
 		result, err = env.Call(symbol.Value, nodes)
 		if err != nil {
 			return nil, err
