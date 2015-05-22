@@ -81,6 +81,10 @@ func (e *Env) Init() {
 		return False{}
 	}
 	e.defs["count"] = func(items []Item) Item {
+		if !items[0].IsList() {
+			return Integer{Value: 0}
+		}
+
 		list := items[0].(List)
 		count := int64(len(list.Value))
 		return Integer{Value: count}

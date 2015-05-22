@@ -1,7 +1,7 @@
 package s
 
 import (
-	"fmt"
+// "fmt"
 )
 
 var environment = NewEnv()
@@ -15,8 +15,6 @@ func read(input string) (Item, error) {
 func eval(ast Item, env *Env) (Item, error) {
 	var result Item
 	var err error
-
-	fmt.Println("Eval", ast)
 
 	switch v := ast.(type) {
 	case List:
@@ -56,7 +54,6 @@ func eval(ast Item, env *Env) (Item, error) {
 					value = kv.Value
 				}
 
-				fmt.Println("Define", kv.Key, value)
 				childEnv.Define(kv.Key, value)
 			}
 
@@ -89,7 +86,6 @@ func eval(ast Item, env *Env) (Item, error) {
 			}
 		}
 
-		fmt.Println("Call", symbol.Value, nodes)
 		result, err = env.Call(symbol.Value, nodes)
 		if err != nil {
 			return nil, err
