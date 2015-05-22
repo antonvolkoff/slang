@@ -27,31 +27,31 @@ func (r *Reader) Parse(code string) (Item, error) {
 }
 
 func (r *Reader) ReadFromTokens() (Item, error) {
-	n := &Node{}
+	var i Item
 	token := r.peek()
 
 	switch token {
 	case "(":
-		n.Type = "list"
+		i := List{}
 		for {
 			cn, err := r.ReadFromTokens()
 			if err != nil {
 				return nil, err
 			}
-			n.Children = append(n.Children, cn)
+			i.Add(cn)
 
 			if r.next() == ")" {
 				r.peek() // Move to next one
 				break
 			}
 		}
+		return i, nil
 
 	case ")":
 		return nil, fmt.Errorf("unexpected ) at %d", r.position)
 
 	case "{":
-		n.Type = "hash"
-		hash := map[Item]Item{}
+		i := Hash{}
 		for {
 			key, err := r.ReadFromTokens()
 			if err != nil {
@@ -61,23 +61,24 @@ func (r *Reader) ReadFromTokens() (Item, error) {
 			if err != nil {
 				return nil, err
 			}
-			hash[key] = value
+			kv := KeyValue{Key: key, Value: value}
+			i.Add(kv)
 
 			if r.next() == "}" {
 				r.peek() // Move to next one
 				break
 			}
 		}
-		n.Value = hash
+		return i, nil
 
 	case "}":
 		return nil, fmt.Errorf("unexpected } at %d", r.position)
 
 	default:
-		r.readAtom(n, token)
+		return r.readAtom(token)
 	}
 
-	return n, nil
+	return i, nil
 }
 
 func (r *Reader) Tokenize(code string) []string {
@@ -105,33 +106,38 @@ func (r *Reader) next() string {
 	return r.tokens[r.position+1]
 }
 
-func (r *Reader) readAtom(n Item, token string) {
+func (r *Reader) readAtom(token string) (Item, error) {
 	switch {
 	case unicode.IsNumber(rune(token[0])):
-		n.Type = "number"
-		val, _ := strconv.Atoi(token)
-		n.Value = val
+		i := Integer{}
+		val, err := strconv.Atoi(token)
+		if err != nil {
+			return nil, err
+		}
+		i.Value = int64(val)
+
+		return i, nil
 
 	case string(token[0]) == `"` && string(token[len(token)-1]) == `"`:
-		n.Type = "string"
+		i := String{}
 		var val string
 		val = token[1 : len(token)-1]
 		val = strings.Replace(val, `\"`, `"`, -1)
 		val = strings.Replace(val, `\n`, "\n", -1)
-		n.Value = val
+		i.Value = val
+		return i, nil
 
 	case string(token[0]) == ":":
-		n.Type = "keyword"
-		n.Value = token[1:]
+		i := Keyword{Value: token[1:]}
+		return i, nil
 
 	case token == "nil":
-		n.Type = "nil"
+		return Nil{}, nil
 	case token == "true":
-		n.Type = "true"
+		return True{}, nil
 	case token == "false":
-		n.Type = "false"
+		return False{}, nil
 	default:
-		n.Type = "symbol"
-		n.Value = token
+		return Symbol{Value: token}, nil
 	}
 }
