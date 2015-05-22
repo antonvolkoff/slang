@@ -8,11 +8,11 @@ import (
 	"unicode"
 )
 
-type Node struct {
-	Type     string
-	Value    interface{}
-	Children []*Node
-}
+// type Node struct {
+// 	Type     string
+// 	Value    interface{}
+// 	Children []*Node
+// }
 
 type Reader struct {
 	position int
