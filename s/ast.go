@@ -2,12 +2,70 @@ package s
 
 type Item interface {
 	Equal(Item) Item
+	IsTrue() bool
+	IsFalse() bool
+	IsNil() bool
+	IsInteger() bool
+	IsString() bool
+	IsSymbol() bool
+	IsKeyword() bool
+	IsList() bool
+	IsHash() bool
+	IsVector() bool
+}
+
+type DefaultItem struct{}
+
+func (self DefaultItem) IsTrue() bool {
+	return false
+}
+
+func (self DefaultItem) IsFalse() bool {
+	return false
+}
+
+func (self DefaultItem) IsNil() bool {
+	return false
+}
+
+func (self DefaultItem) IsInteger() bool {
+	return false
+}
+
+func (self DefaultItem) IsString() bool {
+	return false
+}
+
+func (self DefaultItem) IsSymbol() bool {
+	return false
+}
+
+func (self DefaultItem) IsKeyword() bool {
+	return false
+}
+
+func (self DefaultItem) IsList() bool {
+	return false
+}
+
+func (self DefaultItem) IsHash() bool {
+	return false
+}
+
+func (self DefaultItem) IsVector() bool {
+	return false
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 // True is a `true` type of slang
-type True struct{}
+type True struct {
+	DefaultItem
+}
+
+func (self True) IsTrue() bool {
+	return true
+}
 
 func (self True) Equal(i Item) Item {
 	switch i.(type) {
@@ -21,7 +79,13 @@ func (self True) Equal(i Item) Item {
 ////////////////////////////////////////////////////////////////////////////////
 
 // False is a `false` type of slang
-type False struct{}
+type False struct {
+	DefaultItem
+}
+
+func (self False) IsFalse() bool {
+	return true
+}
 
 func (self False) Equal(i Item) Item {
 	switch i.(type) {
@@ -35,7 +99,13 @@ func (self False) Equal(i Item) Item {
 ////////////////////////////////////////////////////////////////////////////////
 
 // Nil is a `nil` type of slang
-type Nil struct{}
+type Nil struct {
+	DefaultItem
+}
+
+func (self Nil) IsNil() bool {
+	return true
+}
 
 func (self Nil) Equal(i Item) Item {
 	switch i.(type) {
@@ -49,7 +119,12 @@ func (self Nil) Equal(i Item) Item {
 ////////////////////////////////////////////////////////////////////////////////
 
 type Integer struct {
+	DefaultItem
 	Value int64
+}
+
+func (self Integer) IsInteger() bool {
+	return true
 }
 
 func (self Integer) Equal(i Item) Item {
@@ -68,7 +143,12 @@ func (self Integer) Equal(i Item) Item {
 ////////////////////////////////////////////////////////////////////////////////
 
 type String struct {
+	DefaultItem
 	Value string
+}
+
+func (self String) IsString() bool {
+	return true
 }
 
 func (self String) Equal(i Item) Item {
@@ -87,7 +167,12 @@ func (self String) Equal(i Item) Item {
 ////////////////////////////////////////////////////////////////////////////////
 
 type Symbol struct {
+	DefaultItem
 	Value string
+}
+
+func (self Symbol) IsSymbol() bool {
+	return true
 }
 
 func (self Symbol) Equal(i Item) Item {
@@ -106,7 +191,12 @@ func (self Symbol) Equal(i Item) Item {
 ////////////////////////////////////////////////////////////////////////////////
 
 type Keyword struct {
+	DefaultItem
 	Value string
+}
+
+func (self Keyword) IsKeyword() bool {
+	return true
 }
 
 func (self Keyword) Equal(i Item) Item {
@@ -125,7 +215,12 @@ func (self Keyword) Equal(i Item) Item {
 ////////////////////////////////////////////////////////////////////////////////
 
 type List struct {
+	DefaultItem
 	Value []Item
+}
+
+func (self List) IsList() bool {
+	return true
 }
 
 func (self List) Equal(i Item) Item {
@@ -155,6 +250,7 @@ func (self List) Add(i Item) {
 ////////////////////////////////////////////////////////////////////////////////
 
 type KeyValue struct {
+	DefaultItem
 	Key   Item
 	Value Item
 }
@@ -177,13 +273,18 @@ func (self KeyValue) Equal(i Item) Item {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-type Map struct {
+type Hash struct {
+	DefaultItem
 	Value []KeyValue
 }
 
-func (self Map) Equal(i Item) Item {
+func (self Hash) IsHash() bool {
+	return true
+}
+
+func (self Hash) Equal(i Item) Item {
 	switch v := i.(type) {
-	case Map:
+	case Hash:
 		if len(v.Value) != len(self.Value) {
 			return False{}
 		}
@@ -201,14 +302,19 @@ func (self Map) Equal(i Item) Item {
 	}
 }
 
-func (self Map) Add(kv KeyValue) {
+func (self Hash) Add(kv KeyValue) {
 	self.Value = append(self.Value, kv)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 type Vector struct {
+	DefaultItem
 	Value []Item
+}
+
+func (self Vector) IsVector() bool {
+	return true
 }
 
 func (self Vector) Equal(i Item) Item {
