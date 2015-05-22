@@ -6,10 +6,10 @@ import (
 )
 
 type Printer struct {
-	node *Node
+	node Item
 }
 
-func NewPrinter(node *Node) *Printer {
+func NewPrinter(node Item) *Printer {
 	return &Printer{node: node}
 }
 
@@ -17,7 +17,7 @@ func (p *Printer) ToString() (string, error) {
 	return p.nodeToString(p.node)
 }
 
-func (p *Printer) nodeToString(n *Node) (string, error) {
+func (p *Printer) nodeToString(n Item) (string, error) {
 	var output string
 
 	switch n.Type {
@@ -34,7 +34,7 @@ func (p *Printer) nodeToString(n *Node) (string, error) {
 
 	case "hash":
 		var body []string
-		for key, value := range n.Value.(map[*Node]*Node) {
+		for key, value := range n.Value.(map[Item]Item) {
 			keyStr, err := p.nodeToString(key)
 			if err != nil {
 				return output, err

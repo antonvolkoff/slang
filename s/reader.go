@@ -8,12 +8,6 @@ import (
 	"unicode"
 )
 
-// type Node struct {
-// 	Type     string
-// 	Value    interface{}
-// 	Children []*Node
-// }
-
 type Reader struct {
 	position int
 	tokens   []string
@@ -23,7 +17,7 @@ func NewReader() *Reader {
 	return &Reader{position: -1}
 }
 
-func (r *Reader) Parse(code string) (*Node, error) {
+func (r *Reader) Parse(code string) (Item, error) {
 	r.tokens = r.Tokenize(code)
 	if len(r.tokens) == 0 {
 		return nil, fmt.Errorf("unexpected EOF while reading")
@@ -32,7 +26,7 @@ func (r *Reader) Parse(code string) (*Node, error) {
 	return r.ReadFromTokens()
 }
 
-func (r *Reader) ReadFromTokens() (*Node, error) {
+func (r *Reader) ReadFromTokens() (Item, error) {
 	n := &Node{}
 	token := r.peek()
 
@@ -57,7 +51,7 @@ func (r *Reader) ReadFromTokens() (*Node, error) {
 
 	case "{":
 		n.Type = "hash"
-		hash := map[*Node]*Node{}
+		hash := map[Item]Item{}
 		for {
 			key, err := r.ReadFromTokens()
 			if err != nil {
@@ -111,7 +105,7 @@ func (r *Reader) next() string {
 	return r.tokens[r.position+1]
 }
 
-func (r *Reader) readAtom(n *Node, token string) {
+func (r *Reader) readAtom(n Item, token string) {
 	switch {
 	case unicode.IsNumber(rune(token[0])):
 		n.Type = "number"

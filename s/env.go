@@ -4,7 +4,7 @@ import (
 	"fmt"
 )
 
-type EnvFunc func([]*Node) *Node
+type EnvFunc func([]Item) Item
 
 type Env struct {
 	defs   map[string]EnvFunc
@@ -21,80 +21,80 @@ func NewEnv() *Env {
 }
 
 func (e *Env) Init() {
-	e.defs["+"] = func(nodes []*Node) *Node {
-		result := 0
-		for _, node := range nodes {
-			result += node.Value.(int)
+	e.defs["+"] = func(items []Item) Item {
+		var result int64
+		for _, item := range items {
+			num := item.(Integer)
+			result += num.Value
 		}
 
-		return &Node{Type: "number", Value: result}
+		return Integer{Value: result}
 	}
-	e.defs["-"] = func(nodes []*Node) *Node {
-		result := nodes[0].Value.(int)
-		for _, node := range nodes[1:] {
-			result -= node.Value.(int)
+	e.defs["-"] = func(items []Item) Item {
+		result := items[0].(Integer).Value
+		for _, item := range items[1:] {
+			result -= item.(Integer).Value
 		}
 
-		return &Node{Type: "number", Value: result}
+		return Integer{Value: result}
 	}
-	e.defs["*"] = func(nodes []*Node) *Node {
-		result := nodes[0].Value.(int)
-		for _, node := range nodes[1:] {
-			result *= node.Value.(int)
+	e.defs["*"] = func(items []Item) Item {
+		result := items[0].(Integer).Value
+		for _, item := range items[1:] {
+			result *= item.(Integer).Value
 		}
 
-		return &Node{Type: "number", Value: result}
+		return Integer{Value: result}
 	}
-	e.defs["/"] = func(nodes []*Node) *Node {
-		result := nodes[0].Value.(int)
-		for _, node := range nodes[1:] {
-			result /= node.Value.(int)
+	e.defs["/"] = func(items []Item) Item {
+		result := items[0].(Integer).Value
+		for _, item := range items[1:] {
+			result /= item.(Integer).Value
 		}
 
-		return &Node{Type: "number", Value: result}
+		return Integer{Value: result}
 	}
 
 	// List functions
-	e.defs["list"] = func(nodes []*Node) *Node {
-		var value []*Node
-		if nodes == nil {
-			value = []*Node{}
+	e.defs["list"] = func(items []Item) Item {
+		var value []Item
+		if items == nil {
+			value = []Item{}
 		} else {
-			value = nodes
+			value = items
 		}
 
-		n := &Node{Type: "list", Children: value}
-		return n
+		return List{Value: value}
 	}
-	e.defs["list?"] = func(nodes []*Node) *Node {
-		if nodes[0].Type == "list" {
-			return &Node{Type: "true"}
+	e.defs["list?"] = func(items []Item) Item {
+		if _, ok := items[0].(List); ok {
+			return True{}
 		}
-		return &Node{Type: "false"}
+		return False{}
 	}
-	e.defs["empty?"] = func(nodes []*Node) *Node {
-		list := nodes[0]
-		if len(list.Children) == 0 {
-			return &Node{Type: "true"}
+	e.defs["empty?"] = func(items []Item) Item {
+		list := items[0].(List)
+		if len(list.Value) == 0 {
+			return True{}
 		}
 
-		return &Node{Type: "false"}
+		return False{}
 	}
-	e.defs["count"] = func(nodes []*Node) *Node {
-		list := nodes[0]
-		count := len(list.Children)
-		return &Node{Type: "number", Value: count}
+	e.defs["count"] = func(items []Item) Item {
+		list := items[0].(List)
+		count := int64(len(list.Value))
+		return Integer{Value: count}
 	}
 
 	// If condition
-	e.defs["if"] = func(nodes []*Node) *Node {
+	e.defs["if"] = func(nodes []Item) Item {
 		cond := nodes[0]
 		ifTrue := nodes[1]
-		var ifFalse *Node
+		var ifFalse Item
 		if len(nodes) == 3 {
 			ifFalse = nodes[2]
 		} else {
-			ifFalse = &Node{Type: "nil"}
+			ifFalse = Nil{}
 		}
 
 		if cond.Type == "false" || cond.Type == "nil" {
@@ -105,7 +105,7 @@ func (e *Env) Init() {
 	}
 
 	// Basic cond
-	e.defs["="] = func(nodes []*Node) *Node {
+	e.defs["="] = func(nodes []Item) Item {
 		left := nodes[0]
 		right := nodes[1]
 
@@ -138,7 +138,7 @@ func (e *Env) Init() {
 			}
 		}
 	}
-	e.defs[">"] = func(nodes []*Node) *Node {
+	e.defs[">"] = func(nodes []Item) Item {
 		left := nodes[0].Value.(int)
 		right := nodes[1].Value.(int)
 		if left > right {
@@ -147,7 +147,7 @@ func (e *Env) Init() {
 			return &Node{Type: "false"}
 		}
 	}
-	e.defs[">="] = func(nodes []*Node) *Node {
+	e.defs[">="] = func(nodes []Item) Item {
 		left := nodes[0].Value.(int)
 		right := nodes[1].Value.(int)
 		if left >= right {
@@ -156,7 +156,7 @@ func (e *Env) Init() {
 			return &Node{Type: "false"}
 		}
 	}
-	e.defs["<="] = func(nodes []*Node) *Node {
+	e.defs["<="] = func(nodes []Item) Item {
 		left := nodes[0].Value.(int)
 		right := nodes[1].Value.(int)
 		if left <= right {
@@ -165,7 +165,7 @@ func (e *Env) Init() {
 			return &Node{Type: "false"}
 		}
 	}
-	e.defs["<"] = func(nodes []*Node) *Node {
+	e.defs["<"] = func(nodes []Item) Item {
 		left := nodes[0].Value.(int)
 		right := nodes[1].Value.(int)
 		if left < right {
@@ -176,7 +176,7 @@ func (e *Env) Init() {
 	}
 }
 
-func (e *Env) Call(sym string, nodes []*Node) (*Node, error) {
+func (e *Env) Call(sym string, nodes []Item) (Item, error) {
 	fn, ok := e.defs[sym]
 	if !ok {
 		if e.parent != nil {
@@ -187,8 +187,8 @@ func (e *Env) Call(sym string, nodes []*Node) (*Node, error) {
 	return fn(nodes), nil
 }
 
-func (e *Env) Define(symbol *Node, value *Node) *Node {
-	e.defs[symbol.Value.(string)] = func(nodes []*Node) *Node {
+func (e *Env) Define(symbol Item, value Item) Item {
+	e.defs[symbol.Value.(string)] = func(nodes []Item) Item {
 		return value
 	}
 
