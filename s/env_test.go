@@ -10,274 +10,274 @@ func TestSum(t *testing.T) {
 	e := NewEnv()
 	e.Init()
 
-	nodes := []*Node{
-		&Node{Type: "number", Value: 2},
-		&Node{Type: "number", Value: 3},
-		&Node{Type: "number", Value: 5},
+	nodes := []Item{
+		Integer{Value: 2},
+		Integer{Value: 3},
+		Integer{Value: 5},
 	}
 
 	result, err := e.Call("+", nodes)
 
 	assert.NoError(t, err)
-	assert.Equal(t, &Node{Type: "number", Value: 10}, result)
+	assert.Equal(t, Integer{Value: 10}, result)
 }
 
 func TestSub(t *testing.T) {
 	e := NewEnv()
 	e.Init()
 
-	nodes := []*Node{
-		&Node{Type: "number", Value: 10},
-		&Node{Type: "number", Value: 3},
-		&Node{Type: "number", Value: 2},
+	nodes := []Item{
+		Integer{Value: 10},
+		Integer{Value: 3},
+		Integer{Value: 2},
 	}
 
 	result, err := e.Call("-", nodes)
 
 	assert.NoError(t, err)
-	assert.Equal(t, &Node{Type: "number", Value: 5}, result)
+	assert.Equal(t, Integer{Value: 5}, result)
 }
 
 func TestMult(t *testing.T) {
 	e := NewEnv()
 	e.Init()
 
-	nodes := []*Node{
-		&Node{Type: "number", Value: 10},
-		&Node{Type: "number", Value: 5},
-		&Node{Type: "number", Value: 2},
+	nodes := []Item{
+		Integer{Value: 10},
+		Integer{Value: 5},
+		Integer{Value: 2},
 	}
 
 	result, err := e.Call("*", nodes)
 
 	assert.NoError(t, err)
-	assert.Equal(t, &Node{Type: "number", Value: 100}, result)
+	assert.Equal(t, Integer{Value: 100}, result)
 }
 
 func TestDiv(t *testing.T) {
 	e := NewEnv()
 	e.Init()
 
-	nodes := []*Node{
-		&Node{Type: "number", Value: 50},
-		&Node{Type: "number", Value: 5},
-		&Node{Type: "number", Value: 2},
+	nodes := []Item{
+		Integer{Value: 50},
+		Integer{Value: 5},
+		Integer{Value: 2},
 	}
 
 	result, err := e.Call("/", nodes)
 
 	assert.NoError(t, err)
-	assert.Equal(t, &Node{Type: "number", Value: 5}, result)
+	assert.Equal(t, Integer{Value: 5}, result)
 }
 
 func TestEnv_Call_ListFunctions(t *testing.T) {
 	e := NewEnv()
 	e.Init()
 
-	result1, err1 := e.Call("list", []*Node{})
+	result1, err1 := e.Call("list", []Item{})
 	assert.NoError(t, err1)
-	assert.Equal(t, &Node{Type: "list", Children: []*Node{}}, result1)
+	assert.Equal(t, List{Value: []Item{}}, result1)
 
-	result2, err2 := e.Call("list", []*Node{
-		&Node{Type: "number", Value: 1}, &Node{Type: "number", Value: 2}})
+	result2, err2 := e.Call("list", []Item{
+		Integer{Value: 1}, Integer{Value: 2}})
 	assert.NoError(t, err2)
-	expected := &Node{Type: "list", Children: []*Node{
-		&Node{Type: "number", Value: 1}, &Node{Type: "number", Value: 2}}}
+	expected := List{Value: []Item{
+		Integer{Value: 1}, Integer{Value: 2}}}
 	assert.Equal(t, expected, result2)
 
-	result3, err3 := e.Call("list?", []*Node{&Node{Type: "list"}})
+	result3, err3 := e.Call("list?", []Item{List{}})
 	assert.NoError(t, err3)
-	assert.Equal(t, &Node{Type: "true"}, result3)
+	assert.Equal(t, True{}, result3)
 
-	result4, err4 := e.Call("list?", []*Node{&Node{Type: "number"}})
+	result4, err4 := e.Call("list?", []Item{Integer{}})
 	assert.NoError(t, err4)
-	assert.Equal(t, &Node{Type: "false"}, result4)
+	assert.Equal(t, False{}, result4)
 }
 
 func TestEnv_Call_Empty(t *testing.T) {
 	e := NewEnv()
 	e.Init()
 
-	result1, err1 := e.Call("empty?", []*Node{
-		&Node{Type: "list", Children: []*Node{}},
+	result1, err1 := e.Call("empty?", []Item{
+		List{Value: []Item{}},
 	})
 	assert.NoError(t, err1)
-	assert.Equal(t, &Node{Type: "true"}, result1)
+	assert.Equal(t, True{}, result1)
 
-	result2, err2 := e.Call("empty?", []*Node{
-		&Node{Type: "list", Children: []*Node{&Node{Type: "number", Value: 1}}},
+	result2, err2 := e.Call("empty?", []Item{
+		List{Value: []Item{Integer{Value: 1}}},
 	})
 	assert.NoError(t, err2)
-	assert.Equal(t, &Node{Type: "false"}, result2)
+	assert.Equal(t, False{}, result2)
 }
 
 func TestEnv_Call_Count(t *testing.T) {
 	e := NewEnv()
 	e.Init()
 
-	result1, err1 := e.Call("count", []*Node{
-		&Node{Type: "list", Children: []*Node{}},
+	result1, err1 := e.Call("count", []Item{
+		List{Value: []Item{}},
 	})
 	assert.NoError(t, err1)
-	assert.Equal(t, &Node{Type: "number", Value: 0}, result1)
+	assert.Equal(t, Integer{Value: 0}, result1)
 
-	result2, err2 := e.Call("count", []*Node{
-		&Node{Type: "list", Children: []*Node{&Node{Type: "number", Value: 1}}},
+	result2, err2 := e.Call("count", []Item{
+		List{Value: []Item{Integer{Value: 1}}},
 	})
 	assert.NoError(t, err2)
-	assert.Equal(t, &Node{Type: "number", Value: 1}, result2)
+	assert.Equal(t, Integer{Value: 1}, result2)
 }
 
 func TestEnv_Call_If(t *testing.T) {
 	e := NewEnv()
 	e.Init()
 
-	result1, err1 := e.Call("if", []*Node{
-		&Node{Type: "true"},
-		&Node{Type: "number", Value: 1},
-		&Node{Type: "number", Value: 2},
+	result1, err1 := e.Call("if", []Item{
+		True{},
+		Integer{Value: 1},
+		Integer{Value: 2},
 	})
 	assert.NoError(t, err1)
-	assert.Equal(t, &Node{Type: "number", Value: 1}, result1)
+	assert.Equal(t, Integer{Value: 1}, result1)
 
-	result2, err2 := e.Call("if", []*Node{
-		&Node{Type: "false"},
-		&Node{Type: "number", Value: 1},
-		&Node{Type: "number", Value: 2},
+	result2, err2 := e.Call("if", []Item{
+		False{},
+		Integer{Value: 1},
+		Integer{Value: 2},
 	})
 	assert.NoError(t, err2)
-	assert.Equal(t, &Node{Type: "number", Value: 2}, result2)
+	assert.Equal(t, Integer{Value: 2}, result2)
 
-	result3, err3 := e.Call("if", []*Node{
-		&Node{Type: "nil"},
-		&Node{Type: "number", Value: 1},
-		&Node{Type: "number", Value: 2},
+	result3, err3 := e.Call("if", []Item{
+		Nil{},
+		Integer{Value: 1},
+		Integer{Value: 2},
 	})
 	assert.NoError(t, err3)
-	assert.Equal(t, &Node{Type: "number", Value: 2}, result3)
+	assert.Equal(t, Integer{Value: 2}, result3)
 
-	result4, err4 := e.Call("if", []*Node{
-		&Node{Type: "nil"},
-		&Node{Type: "number", Value: 1},
+	result4, err4 := e.Call("if", []Item{
+		Nil{},
+		Integer{Value: 1},
 	})
 	assert.NoError(t, err4)
-	assert.Equal(t, &Node{Type: "nil"}, result4)
+	assert.Equal(t, Nil{}, result4)
 }
 
 func TestEnv_Call_Equal(t *testing.T) {
 	e := NewEnv()
 	e.Init()
 
-	result1, err := e.Call("=", []*Node{
-		&Node{Type: "number", Value: 1},
-		&Node{Type: "number", Value: 2},
+	result1, err := e.Call("=", []Item{
+		Integer{Value: 1},
+		Integer{Value: 2},
 	})
 	assert.NoError(t, err)
-	assert.Equal(t, &Node{Type: "false"}, result1)
+	assert.Equal(t, False{}, result1)
 
-	result2, err := e.Call("=", []*Node{
-		&Node{Type: "number", Value: 1},
-		&Node{Type: "number", Value: 1},
+	result2, err := e.Call("=", []Item{
+		Integer{Value: 1},
+		Integer{Value: 1},
 	})
 	assert.NoError(t, err)
-	assert.Equal(t, &Node{Type: "true"}, result2)
+	assert.Equal(t, True{}, result2)
 }
 
 func TestEnv_Call_More(t *testing.T) {
 	e := NewEnv()
 	e.Init()
 
-	result1, err := e.Call(">", []*Node{
-		&Node{Type: "number", Value: 1},
-		&Node{Type: "number", Value: 2},
+	result1, err := e.Call(">", []Item{
+		Integer{Value: 1},
+		Integer{Value: 2},
 	})
 	assert.NoError(t, err)
-	assert.Equal(t, &Node{Type: "false"}, result1)
+	assert.Equal(t, False{}, result1)
 
-	result2, err := e.Call(">", []*Node{
-		&Node{Type: "number", Value: 2},
-		&Node{Type: "number", Value: 1},
+	result2, err := e.Call(">", []Item{
+		Integer{Value: 2},
+		Integer{Value: 1},
 	})
 	assert.NoError(t, err)
-	assert.Equal(t, &Node{Type: "true"}, result2)
+	assert.Equal(t, True{}, result2)
 }
 
 func TestEnv_Call_MoreOrEqual(t *testing.T) {
 	e := NewEnv()
 	e.Init()
 
-	result1, err := e.Call(">=", []*Node{
-		&Node{Type: "number", Value: 1},
-		&Node{Type: "number", Value: 2},
+	result1, err := e.Call(">=", []Item{
+		Integer{Value: 1},
+		Integer{Value: 2},
 	})
 	assert.NoError(t, err)
-	assert.Equal(t, &Node{Type: "false"}, result1)
+	assert.Equal(t, False{}, result1)
 
-	result2, err := e.Call(">=", []*Node{
-		&Node{Type: "number", Value: 2},
-		&Node{Type: "number", Value: 1},
+	result2, err := e.Call(">=", []Item{
+		Integer{Value: 2},
+		Integer{Value: 1},
 	})
 	assert.NoError(t, err)
-	assert.Equal(t, &Node{Type: "true"}, result2)
+	assert.Equal(t, True{}, result2)
 
-	result3, err := e.Call(">=", []*Node{
-		&Node{Type: "number", Value: 1},
-		&Node{Type: "number", Value: 1},
+	result3, err := e.Call(">=", []Item{
+		Integer{Value: 1},
+		Integer{Value: 1},
 	})
 	assert.NoError(t, err)
-	assert.Equal(t, &Node{Type: "true"}, result3)
+	assert.Equal(t, True{}, result3)
 }
 
 func TestEnv_Call_LessOrEqual(t *testing.T) {
 	e := NewEnv()
 	e.Init()
 
-	result1, err := e.Call("<=", []*Node{
-		&Node{Type: "number", Value: 1},
-		&Node{Type: "number", Value: 2},
+	result1, err := e.Call("<=", []Item{
+		Integer{Value: 1},
+		Integer{Value: 2},
 	})
 	assert.NoError(t, err)
-	assert.Equal(t, &Node{Type: "true"}, result1)
+	assert.Equal(t, True{}, result1)
 
-	result2, err := e.Call("<=", []*Node{
-		&Node{Type: "number", Value: 2},
-		&Node{Type: "number", Value: 1},
+	result2, err := e.Call("<=", []Item{
+		Integer{Value: 2},
+		Integer{Value: 1},
 	})
 	assert.NoError(t, err)
-	assert.Equal(t, &Node{Type: "false"}, result2)
+	assert.Equal(t, False{}, result2)
 
-	result3, err := e.Call("<=", []*Node{
-		&Node{Type: "number", Value: 1},
-		&Node{Type: "number", Value: 1},
+	result3, err := e.Call("<=", []Item{
+		Integer{Value: 1},
+		Integer{Value: 1},
 	})
 	assert.NoError(t, err)
-	assert.Equal(t, &Node{Type: "true"}, result3)
+	assert.Equal(t, True{}, result3)
 }
 
 func TestEnv_Call_Less(t *testing.T) {
 	e := NewEnv()
 	e.Init()
 
-	result1, err := e.Call("<", []*Node{
-		&Node{Type: "number", Value: 1},
-		&Node{Type: "number", Value: 2},
+	result1, err := e.Call("<", []Item{
+		Integer{Value: 1},
+		Integer{Value: 2},
 	})
 	assert.NoError(t, err)
-	assert.Equal(t, &Node{Type: "true"}, result1)
+	assert.Equal(t, True{}, result1)
 
-	result2, err := e.Call("<", []*Node{
-		&Node{Type: "number", Value: 2},
-		&Node{Type: "number", Value: 1},
+	result2, err := e.Call("<", []Item{
+		Integer{Value: 2},
+		Integer{Value: 1},
 	})
 	assert.NoError(t, err)
-	assert.Equal(t, &Node{Type: "false"}, result2)
+	assert.Equal(t, False{}, result2)
 
-	result3, err := e.Call("<", []*Node{
-		&Node{Type: "number", Value: 1},
-		&Node{Type: "number", Value: 1},
+	result3, err := e.Call("<", []Item{
+		Integer{Value: 1},
+		Integer{Value: 1},
 	})
 	assert.NoError(t, err)
-	assert.Equal(t, &Node{Type: "false"}, result3)
+	assert.Equal(t, False{}, result3)
 }
 
 func TestEnv_Define(t *testing.T) {
@@ -285,16 +285,16 @@ func TestEnv_Define(t *testing.T) {
 	e.Init()
 
 	result1 := e.Define(
-		&Node{Type: "symbol", Value: "test"},
-		&Node{Type: "number", Value: 42},
+		Symbol{Value: "test"},
+		Integer{Value: 42},
 	)
 
-	assert.Equal(t, &Node{Type: "number", Value: 42}, result1)
+	assert.Equal(t, Integer{Value: 42}, result1)
 
-	result2, err := e.Call("test", []*Node{})
+	result2, err := e.Call("test", []Item{})
 
 	assert.NoError(t, err)
-	assert.Equal(t, &Node{Type: "number", Value: 42}, result2)
+	assert.Equal(t, Integer{Value: 42}, result2)
 }
 
 func TestEnv_NewChild(t *testing.T) {
@@ -304,10 +304,10 @@ func TestEnv_NewChild(t *testing.T) {
 
 	assert.Equal(t, parent, child.parent)
 
-	parent.Define(&Node{Type: "symbol", Value: "x"}, &Node{Type: "number", Value: 3})
+	parent.Define(Symbol{Value: "x"}, Integer{Value: 3})
 
-	node, err := child.Call("x", []*Node{})
+	node, err := child.Call("x", []Item{})
 
 	assert.NoError(t, err)
-	assert.Equal(t, &Node{Type: "number", Value: 3}, node)
+	assert.Equal(t, Integer{Value: 3}, node)
 }

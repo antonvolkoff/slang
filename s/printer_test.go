@@ -6,66 +6,66 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var printTestcases = map[string]*Node{
+var printTestcases = map[string]Item{
 	// true, false and nil
-	"nil":   &Node{Type: "nil"},
-	"true":  &Node{Type: "true"},
-	"false": &Node{Type: "false"},
+	"nil":   Nil{},
+	"true":  True{},
+	"false": False{},
 
 	// Numbers
-	"1": &Node{Type: "number", Value: 1},
-	"7": &Node{Type: "number", Value: 7},
+	"1": Integer{Value: 1},
+	"7": Integer{Value: 7},
 
 	// Symbols
-	"+":       &Node{Type: "symbol", Value: "+"},
-	"abc":     &Node{Type: "symbol", Value: "abc"},
-	"abc5":    &Node{Type: "symbol", Value: "abc5"},
-	"abc-def": &Node{Type: "symbol", Value: "abc-def"},
+	"+":       Symbol{Value: "+"},
+	"abc":     Symbol{Value: "abc"},
+	"abc5":    Symbol{Value: "abc5"},
+	"abc-def": Symbol{Value: "abc-def"},
 
 	// Strings
-	`"abc"`:               &Node{Type: "string", Value: "abc"},
-	`"abc (with parens)"`: &Node{Type: "string", Value: "abc (with parens)"},
-	`"abc"def"`:           &Node{Type: "string", Value: "abc\"def"},
-	`""`:                  &Node{Type: "string", Value: ""},
+	`"abc"`:               String{Value: "abc"},
+	`"abc (with parens)"`: String{Value: "abc (with parens)"},
+	`"abc"def"`:           String{Value: "abc\"def"},
+	`""`:                  String{Value: ""},
 
 	// Lists
-	"(+ 1 2)": &Node{Type: "list", Children: []*Node{
-		&Node{Type: "symbol", Value: "+"},
-		&Node{Type: "number", Value: 1},
-		&Node{Type: "number", Value: 2},
+	"(+ 1 2)": List{Value: []Item{
+		Symbol{Value: "+"},
+		Integer{Value: 1},
+		Integer{Value: 2},
 	}},
-	"((3 4))": &Node{Type: "list", Children: []*Node{
-		&Node{Type: "list", Children: []*Node{
-			&Node{Type: "number", Value: 3},
-			&Node{Type: "number", Value: 4},
+	"((3 4))": List{Value: []Item{
+		List{Value: []Item{
+			Integer{Value: 3},
+			Integer{Value: 4},
 		}},
 	}},
-	"(+ 1 (+ 2 3))": &Node{Type: "list", Children: []*Node{
-		&Node{Type: "symbol", Value: "+"},
-		&Node{Type: "number", Value: 1},
-		&Node{Type: "list", Children: []*Node{
-			&Node{Type: "symbol", Value: "+"},
-			&Node{Type: "number", Value: 2},
-			&Node{Type: "number", Value: 3},
+	"(+ 1 (+ 2 3))": List{Value: []Item{
+		Symbol{Value: "+"},
+		Integer{Value: 1},
+		List{Value: []Item{
+			Symbol{Value: "+"},
+			Integer{Value: 2},
+			Integer{Value: 3},
 		}},
 	}},
-	"(* 1 2)": &Node{Type: "list", Children: []*Node{
-		&Node{Type: "symbol", Value: "*"},
-		&Node{Type: "number", Value: 1},
-		&Node{Type: "number", Value: 2},
+	"(* 1 2)": List{Value: []Item{
+		Symbol{Value: "*"},
+		Integer{Value: 1},
+		Integer{Value: 2},
 	}},
-	"(** 1 2)": &Node{Type: "list", Children: []*Node{
-		&Node{Type: "symbol", Value: "**"},
-		&Node{Type: "number", Value: 1},
-		&Node{Type: "number", Value: 2},
+	"(** 1 2)": List{Value: []Item{
+		Symbol{Value: "**"},
+		Integer{Value: 1},
+		Integer{Value: 2},
 	}},
 
 	// Keywords
-	":kw": &Node{Type: "keyword", Value: "kw"},
+	":kw": Keyword{Value: "kw"},
 
 	// Map
-	`{"a" 1}`: &Node{Type: "hash", Value: map[*Node]*Node{
-		&Node{Type: "string", Value: "a"}: &Node{Type: "number", Value: 1},
+	`{"a" 1}`: Hash{Value: []KeyValue{
+		KeyValue{Key: String{Value: "a"}, Value: Integer{Value: 1}},
 	}},
 }
 
