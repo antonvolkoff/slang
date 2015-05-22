@@ -32,13 +32,13 @@ func (r *Reader) ReadFromTokens() (Item, error) {
 
 	switch token {
 	case "(":
-		i := List{}
+		i := List{Value: []Item{}}
 		for {
 			cn, err := r.ReadFromTokens()
 			if err != nil {
 				return nil, err
 			}
-			i.Add(cn)
+			i = i.Add(cn)
 
 			if r.next() == ")" {
 				r.peek() // Move to next one
@@ -62,7 +62,7 @@ func (r *Reader) ReadFromTokens() (Item, error) {
 				return nil, err
 			}
 			kv := KeyValue{Key: key, Value: value}
-			i.Add(kv)
+			i = i.Add(kv)
 
 			if r.next() == "}" {
 				r.peek() // Move to next one

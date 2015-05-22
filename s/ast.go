@@ -243,8 +243,9 @@ func (self List) Equal(i Item) Item {
 	}
 }
 
-func (self List) Add(i Item) {
+func (self List) Add(i Item) List {
 	self.Value = append(self.Value, i)
+	return self
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -302,8 +303,9 @@ func (self Hash) Equal(i Item) Item {
 	}
 }
 
-func (self Hash) Add(kv KeyValue) {
+func (self Hash) Add(kv KeyValue) Hash {
 	self.Value = append(self.Value, kv)
+	return self
 }
 
 ////////////////////////////////////////////////////////////////////////////////
