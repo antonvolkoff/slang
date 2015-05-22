@@ -67,6 +67,19 @@ var printTestcases = map[string]Item{
 	`{"a" 1}`: Hash{Value: []KeyValue{
 		KeyValue{Key: String{Value: "a"}, Value: Integer{Value: 1}},
 	}},
+
+	// Vector
+	"[+ 1 2]": Vector{Value: []Item{
+		Symbol{Value: "+"},
+		Integer{Value: 1},
+		Integer{Value: 2},
+	}},
+	"[[3 4]]": Vector{Value: []Item{
+		Vector{Value: []Item{
+			Integer{Value: 3},
+			Integer{Value: 4},
+		}},
+	}},
 }
 
 func TestPrinter_ToString(t *testing.T) {
