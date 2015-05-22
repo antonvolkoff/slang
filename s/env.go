@@ -97,7 +97,7 @@ func (e *Env) Init() {
 			ifFalse = Nil{}
 		}
 
-		if cond.Type == "false" || cond.Type == "nil" {
+		if cond.IsFalse() || cond.IsNil() {
 			return ifFalse
 		} else {
 			return ifTrue
@@ -109,69 +109,75 @@ func (e *Env) Init() {
 		left := nodes[0]
 		right := nodes[1]
 
-		if left.Type != left.Type {
-			return &Node{Type: "false"}
+		if left.Equal(right).IsFalse() {
+			return False{}
 		}
 
-		switch {
-		case left.Type == "list" && right.Type == "list":
-			leftValue := left.Children
-			rightValue := right.Children
+		return True{}
 
-			if len(leftValue) != len(rightValue) {
-				return &Node{Type: "false"}
-			}
+		// if left.Type != left.Type {
+		// 	return False{}
+		// }
 
-			for i := 0; i < len(leftValue); i++ {
-				if leftValue[i].Type != rightValue[i].Type || leftValue[i].Value != rightValue[i].Value {
-					return &Node{Type: "false"}
-				}
-			}
+		// switch {
+		// case left.Type == "list" && right.Type == "list":
+		// 	leftValue := left.Children
+		// 	rightValue := right.Children
 
-			return &Node{Type: "true"}
+		// 	if len(leftValue) != len(rightValue) {
+		// 		return False{}
+		// 	}
 
-		default:
-			if left.Value == right.Value {
-				return &Node{Type: "true"}
-			} else {
-				return &Node{Type: "false"}
-			}
-		}
+		// 	for i := 0; i < len(leftValue); i++ {
+		// 		if leftValue[i].Type != rightValue[i].Type || leftValue[i].Value != rightValue[i].Value {
+		// 			return False{}
+		// 		}
+		// 	}
+
+		// 	return True{}
+
+		// default:
+		// 	if left.Value == right.Value {
+		// 		return True{}
+		// 	} else {
+		// 		return False{}
+		// 	}
+		// }
 	}
-	e.defs[">"] = func(nodes []Item) Item {
-		left := nodes[0].Value.(int)
-		right := nodes[1].Value.(int)
+	e.defs[">"] = func(items []Item) Item {
+		left := items[0].(Integer).Value
+		right := items[1].(Integer).Value
 		if left > right {
-			return &Node{Type: "true"}
+			return True{}
 		} else {
-			return &Node{Type: "false"}
+			return False{}
 		}
 	}
-	e.defs[">="] = func(nodes []Item) Item {
-		left := nodes[0].Value.(int)
-		right := nodes[1].Value.(int)
+	e.defs[">="] = func(items []Item) Item {
+		left := items[0].(Integer).Value
+		right := items[1].(Integer).Value
 		if left >= right {
-			return &Node{Type: "true"}
+			return True{}
 		} else {
-			return &Node{Type: "false"}
+			return False{}
 		}
 	}
-	e.defs["<="] = func(nodes []Item) Item {
-		left := nodes[0].Value.(int)
-		right := nodes[1].Value.(int)
+	e.defs["<="] = func(items []Item) Item {
+		left := items[0].(Integer).Value
+		right := items[1].(Integer).Value
 		if left <= right {
-			return &Node{Type: "true"}
+			return True{}
 		} else {
-			return &Node{Type: "false"}
+			return False{}
 		}
 	}
-	e.defs["<"] = func(nodes []Item) Item {
-		left := nodes[0].Value.(int)
-		right := nodes[1].Value.(int)
+	e.defs["<"] = func(items []Item) Item {
+		left := items[0].(Integer).Value
+		right := items[1].(Integer).Value
 		if left < right {
-			return &Node{Type: "true"}
+			return True{}
 		} else {
-			return &Node{Type: "false"}
+			return False{}
 		}
 	}
 }
@@ -188,7 +194,7 @@ func (e *Env) Call(sym string, nodes []Item) (Item, error) {
 }
 
 func (e *Env) Define(symbol Item, value Item) Item {
-	e.defs[symbol.Value.(string)] = func(nodes []Item) Item {
+	e.defs[symbol.(Symbol).Value] = func(items []Item) Item {
 		return value
 	}
 
