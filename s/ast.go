@@ -339,6 +339,7 @@ func (self Vector) Equal(i Item) Item {
 	}
 }
 
-func (self Vector) Add(i Item) {
+func (self Vector) Add(i Item) Vector {
 	self.Value = append(self.Value, i)
+	return self
 }

@@ -74,6 +74,25 @@ func (r *Reader) ReadFromTokens() (Item, error) {
 	case "}":
 		return nil, fmt.Errorf("unexpected } at %d", r.position)
 
+	case "[":
+		i := Vector{}
+		for {
+			if r.next() == "]" {
+				r.peek() // Move to next one
+				break
+			}
+
+			cn, err := r.ReadFromTokens()
+			if err != nil {
+				return nil, err
+			}
+			i = i.Add(cn)
+		}
+		return i, nil
+
+	case "]":
+		return nil, fmt.Errorf("unexpected ] at %d", r.position)
+
 	default:
 		return r.readAtom(token)
 	}
