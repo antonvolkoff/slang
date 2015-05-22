@@ -56,7 +56,14 @@ func (e *Env) Init() {
 
 	// List functions
 	e.defs["list"] = func(nodes []*Node) *Node {
-		n := &Node{Type: "list", Children: nodes}
+		var value []*Node
+		if nodes == nil {
+			value = []*Node{}
+		} else {
+			value = nodes
+		}
+
+		n := &Node{Type: "list", Children: value}
 		return n
 	}
 	e.defs["list?"] = func(nodes []*Node) *Node {
@@ -101,10 +108,34 @@ func (e *Env) Init() {
 	e.defs["="] = func(nodes []*Node) *Node {
 		left := nodes[0]
 		right := nodes[1]
-		if left.Type == left.Type && left.Value == right.Value {
-			return &Node{Type: "true"}
-		} else {
+
+		if left.Type != left.Type {
 			return &Node{Type: "false"}
+		}
+
+		switch {
+		case left.Type == "list" && right.Type == "list":
+			leftValue := left.Children
+			rightValue := right.Children
+
+			if len(leftValue) != len(rightValue) {
+				return &Node{Type: "false"}
+			}
+
+			for i := 0; i < len(leftValue); i++ {
+				if leftValue[i].Type != rightValue[i].Type || leftValue[i].Value != rightValue[i].Value {
+					return &Node{Type: "false"}
+				}
+			}
+
+			return &Node{Type: "true"}
+
+		default:
+			if left.Value == right.Value {
+				return &Node{Type: "true"}
+			} else {
+				return &Node{Type: "false"}
+			}
 		}
 	}
 	e.defs[">"] = func(nodes []*Node) *Node {
