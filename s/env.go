@@ -96,6 +96,17 @@ func (e *Env) Init() {
 			return ifTrue
 		}
 	}
+
+	// Basic cond
+	e.defs["="] = func(nodes []*Node) *Node {
+		left := nodes[0]
+		right := nodes[1]
+		if left.Type == left.Type && left.Value == right.Value {
+			return &Node{Type: "true"}
+		} else {
+			return &Node{Type: "false"}
+		}
+	}
 }
 
 func (e *Env) Call(sym string, nodes []*Node) (*Node, error) {

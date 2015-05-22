@@ -117,3 +117,20 @@ func TestRep_If(t *testing.T) {
 		assert.Equal(t, output, res)
 	}
 }
+
+var condCases = map[string]string{
+	"(= 2 1)":       "false",
+	"(= 1 1)":       "true",
+	"(= 1 (+ 1 1))": "false",
+	"(= 2 (+ 1 1))": "true",
+	"(= nil 1)":     "false",
+	"(= nil nil)":   "true",
+}
+
+func TestRep_Cond(t *testing.T) {
+	for input, output := range condCases {
+		res, err := Rep(input)
+		assert.NoError(t, err)
+		assert.Equal(t, output, res, "%s should return %s", input, output)
+	}
+}
