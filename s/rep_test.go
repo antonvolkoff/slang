@@ -164,3 +164,18 @@ func TestRep_Cond(t *testing.T) {
 		assert.Equal(t, output, res, "%s should return %s", input, output)
 	}
 }
+
+var fnCases = map[string]string{
+	"(fn [] 1)": "(fn [] 1)",
+	// "((fn [a b] (+ b a)) 3 4)": "7",
+	// "((fn [] 4))": "4",
+	// "( (fn (f x) (f x)) (fn (a) (+ 1 a)) 7)": "8",
+}
+
+func TestRep_Func(t *testing.T) {
+	for input, output := range fnCases {
+		res, err := Rep(input)
+		assert.NoError(t, err)
+		assert.Equal(t, output, res, "%s should return %s", input, output)
+	}
+}
