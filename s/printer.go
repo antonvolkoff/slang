@@ -6,24 +6,24 @@ import (
 )
 
 type Printer struct {
-	node Item
+	item Item
 }
 
-func NewPrinter(node Item) *Printer {
-	return &Printer{node: node}
+func NewPrinter(item Item) *Printer {
+	return &Printer{item: item}
 }
 
 func (p *Printer) ToString() (string, error) {
-	return p.nodeToString(p.node)
+	return p.nodeToString(p.item)
 }
 
-func (p *Printer) nodeToString(n Item) (string, error) {
+func (p *Printer) nodeToString(i Item) (string, error) {
 	var output string
 
-	switch n.Type {
-	case "list":
+	switch v := i.(type) {
+	case List:
 		var body []string
-		for _, child := range n.Children {
+		for _, child := range v.Value {
 			str, err := p.nodeToString(child)
 			if err != nil {
 				return output, err
@@ -32,16 +32,16 @@ func (p *Printer) nodeToString(n Item) (string, error) {
 		}
 		output = "(" + strings.Join(body, " ") + ")"
 
-	case "hash":
+	case Hash:
 		var body []string
-		for key, value := range n.Value.(map[Item]Item) {
-			keyStr, err := p.nodeToString(key)
+		for _, kv := range v.Value {
+			keyStr, err := p.nodeToString(kv.Key)
 			if err != nil {
 				return output, err
 			}
 			body = append(body, keyStr)
 
-			valueStr, err := p.nodeToString(value)
+			valueStr, err := p.nodeToString(kv.Value)
 			if err != nil {
 				return output, err
 			}
@@ -49,29 +49,29 @@ func (p *Printer) nodeToString(n Item) (string, error) {
 		}
 		output = "{" + strings.Join(body, " ") + "}"
 
-	case "number":
-		output = fmt.Sprintf("%d", n.Value)
+	case Integer:
+		output = fmt.Sprintf("%d", v.Value)
 
-	case "symbol":
-		output = fmt.Sprintf("%s", n.Value)
+	case Symbol:
+		output = fmt.Sprintf("%s", v.Value)
 
-	case "keyword":
-		output = fmt.Sprintf(":%s", n.Value)
+	case Keyword:
+		output = fmt.Sprintf(":%s", v.Value)
 
-	case "nil":
+	case Nil:
 		output = "nil"
 
-	case "true":
+	case True:
 		output = "true"
 
-	case "false":
+	case False:
 		output = "false"
 
-	case "string":
-		output = fmt.Sprintf(`"%s"`, n.Value)
+	case String:
+		output = fmt.Sprintf(`"%s"`, v.Value)
 
 	default:
-		return "", fmt.Errorf("Unknown type '%s'", n.Type)
+		return "", fmt.Errorf("Unknown type '%s'", i)
 	}
 
 	return output, nil
