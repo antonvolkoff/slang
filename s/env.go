@@ -1,19 +1,19 @@
 package s
 
 import (
-// "fmt"
+	"fmt"
 )
 
 // Env is a structure which holds environment data
 type Env struct {
-	defs   map[string]Func
+	defs   map[string]Item
 	parent *Env
 }
 
 // NewEnv returns new environment data struct
 func NewEnv() *Env {
 	env := &Env{
-		defs:   make(map[string]Func),
+		defs:   make(map[string]Item),
 		parent: nil,
 	}
 
@@ -22,14 +22,18 @@ func NewEnv() *Env {
 
 // Init sets up main environment functions which can be executed
 func (e *Env) Init() {
+	e.Define("+", Func{Value: func(args []Item) (Item, error) {
+		var result int64
+		for _, item := range args {
+			num := item.(Integer)
+			result += num.Value
+		}
+
+		return Integer{Value: result}, nil
+	}})
+
 	// e.defs["+"] = func(items []Item) Item {
-	// 	var result int64
-	// 	for _, item := range items {
-	// 		num := item.(Integer)
-	// 		result += num.Value
-	// 	}
-	//
-	// 	return Integer{Value: result}
+
 	// }
 	// e.defs["-"] = func(items []Item) Item {
 	// 	result := items[0].(Integer).Value
@@ -156,9 +160,19 @@ func (e *Env) Init() {
 }
 
 // Define adds new function to an environment
-func (e *Env) Define(name string, fn Func) Item {
-	e.defs[name] = fn
-	return fn
+func (e *Env) Define(name string, val Item) Item {
+	e.defs[name] = val
+	return val
+}
+
+// Get return environment function
+func (e *Env) Get(name string) (Item, error) {
+	item, found := e.defs[name]
+	if !found {
+		return nil, fmt.Errorf("%s is undefined", name)
+	}
+
+	return item, nil
 }
 
 // NewChild creates empty child environment

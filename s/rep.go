@@ -12,6 +12,22 @@ func read(input string) (Item, error) {
 
 // Eval executes code
 func Eval(root Item, env *Env) (Item, error) {
+
+	switch v := root.(type) {
+	case List:
+		// Return empty list
+		if len(v.Value) == 0 {
+			return v, nil
+		}
+
+	case Symbol:
+		val, err := env.Get(v.Value)
+		return val, err
+
+	default:
+		return v, nil
+	}
+
 	return nil, nil
 }
 

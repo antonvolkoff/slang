@@ -1,10 +1,52 @@
 package s
 
-// import (
-// 	"testing"
-//
-// 	"github.com/stretchr/testify/assert"
-// )
+import (
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+)
+
+func TestEval(t *testing.T) {
+	var env = NewEnv()
+	env.Init()
+
+	var evalTests = []struct {
+		root     Item
+		expected Item
+	}{
+		{ // 1 => 1
+			root:     Integer{Value: 1},
+			expected: Integer{Value: 1},
+		},
+		{ // "1" => "1"
+			root:     String{Value: "1"},
+			expected: String{Value: "1"},
+		},
+		{ // :key => :key
+			root:     Keyword{Value: "key"},
+			expected: Keyword{Value: "key"},
+		},
+		{ // + => Func
+			root: Symbol{Value: "+"},
+			expected: func() Item {
+				i, _ := env.Get("+")
+				return i
+			}(),
+		},
+		{ // () => ()
+			root:     List{},
+			expected: List{},
+		},
+	}
+
+	for _, test := range evalTests {
+		actual, err := Eval(test.root, env)
+
+		assert.NoError(t, err)
+		assert.Equal(t, test.expected, actual)
+	}
+}
+
 //
 // var repTestcases = map[string]string{
 // 	"(+ 1 2)":                            "3",
