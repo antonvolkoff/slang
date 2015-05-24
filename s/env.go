@@ -33,31 +33,33 @@ func (e *Env) Init() {
 		return Integer{Value: result}, nil
 	}})
 
-	// e.defs["-"] = func(items []Item) Item {
-	// 	result := items[0].(Integer).Value
-	// 	for _, item := range items[1:] {
-	// 		result -= item.(Integer).Value
-	// 	}
-	//
-	// 	return Integer{Value: result}
-	// }
-	// e.defs["*"] = func(items []Item) Item {
-	// 	result := items[0].(Integer).Value
-	// 	for _, item := range items[1:] {
-	// 		result *= item.(Integer).Value
-	// 	}
-	//
-	// 	return Integer{Value: result}
-	// }
-	// e.defs["/"] = func(items []Item) Item {
-	// 	result := items[0].(Integer).Value
-	// 	for _, item := range items[1:] {
-	// 		result /= item.(Integer).Value
-	// 	}
-	//
-	// 	return Integer{Value: result}
-	// }
-	//
+	e.Define("-", Func{Value: func(args []Item) (Item, error) {
+		result := args[0].(Integer).Value
+		for _, item := range args[1:] {
+			result -= item.(Integer).Value
+		}
+
+		return Integer{Value: result}, nil
+	}})
+
+	e.Define("*", Func{Value: func(args []Item) (Item, error) {
+		result := args[0].(Integer).Value
+		for _, item := range args[1:] {
+			result *= item.(Integer).Value
+		}
+
+		return Integer{Value: result}, nil
+	}})
+
+	e.Define("/", Func{Value: func(args []Item) (Item, error) {
+		result := args[0].(Integer).Value
+		for _, item := range args[1:] {
+			result /= item.(Integer).Value
+		}
+
+		return Integer{Value: result}, nil
+	}})
+
 	// // List functions
 	// e.defs["list"] = func(items []Item) Item {
 	// 	var value []Item
@@ -169,11 +171,13 @@ func (e *Env) Get(name string) (Item, error) {
 	var found bool
 
 	item, found = e.defs[name]
-	if !found {
+
+	if !found && e.parent != nil {
 		item, found = e.parent.defs[name]
-		if !found {
-			return nil, fmt.Errorf("%s is undefined", name)
-		}
+	}
+
+	if !found {
+		return nil, fmt.Errorf("%s is undefined", name)
 	}
 
 	return item, nil

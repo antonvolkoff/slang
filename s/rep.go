@@ -1,6 +1,6 @@
 package s
 
-// import "github.com/k0kubun/pp"
+import "github.com/k0kubun/pp"
 import "fmt"
 
 var environment = NewEnv()
@@ -13,7 +13,7 @@ func read(input string) (Item, error) {
 
 // Eval executes code
 func Eval(root Item, env *Env) (Item, error) {
-	// pp.Println(root)
+	pp.Println(root)
 
 	switch v := root.(type) {
 	case List:
@@ -39,11 +39,27 @@ func Eval(root Item, env *Env) (Item, error) {
 					fnEnv.Define(defs[i].(Symbol).Value, arg)
 				}
 
-				// pp.Println("fn args", args)
 				return Eval(rest[1], fnEnv)
 			}}
 
 			return fn, nil
+
+		case "set":
+			name := rest[0].(Symbol)
+			value := rest[1]
+
+			if value.IsList() {
+				var err error
+				value, err = Eval(value, env)
+				if err != nil {
+					return nil, err
+				}
+			}
+
+			env.Define(name.Value, value)
+
+			return value, nil
+
 		default:
 			fn, err := Eval(head, env)
 			if err != nil {
