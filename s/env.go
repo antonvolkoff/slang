@@ -4,13 +4,16 @@ import (
 	"fmt"
 )
 
+// EnvFunc is a type definition of environment function
 type EnvFunc func([]Item) Item
 
+// Env is a structure which holds environment data
 type Env struct {
 	defs   map[string]EnvFunc
 	parent *Env
 }
 
+// NewEnv returns new environment data struct
 func NewEnv() *Env {
 	env := &Env{
 		defs:   make(map[string]EnvFunc),
@@ -20,6 +23,7 @@ func NewEnv() *Env {
 	return env
 }
 
+// Init sets up main environment functions which can be executed
 func (e *Env) Init() {
 	e.defs["+"] = func(items []Item) Item {
 		var result int64
@@ -103,9 +107,9 @@ func (e *Env) Init() {
 
 		if cond.IsFalse() || cond.IsNil() {
 			return ifFalse
-		} else {
-			return ifTrue
 		}
+
+		return ifTrue
 	}
 
 	// Basic cond
@@ -118,74 +122,43 @@ func (e *Env) Init() {
 		}
 
 		return True{}
-
-		// if left.Type != left.Type {
-		// 	return False{}
-		// }
-
-		// switch {
-		// case left.Type == "list" && right.Type == "list":
-		// 	leftValue := left.Children
-		// 	rightValue := right.Children
-
-		// 	if len(leftValue) != len(rightValue) {
-		// 		return False{}
-		// 	}
-
-		// 	for i := 0; i < len(leftValue); i++ {
-		// 		if leftValue[i].Type != rightValue[i].Type || leftValue[i].Value != rightValue[i].Value {
-		// 			return False{}
-		// 		}
-		// 	}
-
-		// 	return True{}
-
-		// default:
-		// 	if left.Value == right.Value {
-		// 		return True{}
-		// 	} else {
-		// 		return False{}
-		// 	}
-		// }
 	}
 	e.defs[">"] = func(items []Item) Item {
 		left := items[0].(Integer).Value
 		right := items[1].(Integer).Value
 		if left > right {
 			return True{}
-		} else {
-			return False{}
 		}
+		return False{}
 	}
 	e.defs[">="] = func(items []Item) Item {
 		left := items[0].(Integer).Value
 		right := items[1].(Integer).Value
 		if left >= right {
 			return True{}
-		} else {
-			return False{}
 		}
+		return False{}
 	}
 	e.defs["<="] = func(items []Item) Item {
 		left := items[0].(Integer).Value
 		right := items[1].(Integer).Value
 		if left <= right {
 			return True{}
-		} else {
-			return False{}
 		}
+		return False{}
 	}
 	e.defs["<"] = func(items []Item) Item {
 		left := items[0].(Integer).Value
 		right := items[1].(Integer).Value
 		if left < right {
 			return True{}
-		} else {
-			return False{}
 		}
+
+		return False{}
 	}
 }
 
+// Call executes environment function by given name and arguments
 func (e *Env) Call(sym string, nodes []Item) (Item, error) {
 	fn, ok := e.defs[sym]
 	if !ok {
@@ -197,6 +170,7 @@ func (e *Env) Call(sym string, nodes []Item) (Item, error) {
 	return fn(nodes), nil
 }
 
+// Define adds new function to an environment
 func (e *Env) Define(symbol Item, value Item) Item {
 	e.defs[symbol.(Symbol).Value] = func(items []Item) Item {
 		return value
@@ -205,6 +179,7 @@ func (e *Env) Define(symbol Item, value Item) Item {
 	return value
 }
 
+// NewChild creates empty child environment
 func (e *Env) NewChild() *Env {
 	env := NewEnv()
 	env.parent = e
