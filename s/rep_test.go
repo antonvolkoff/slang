@@ -166,9 +166,10 @@ func TestRep_Cond(t *testing.T) {
 }
 
 var fnCases = map[string]string{
-	"(fn [] 1)": "(fn [] 1)",
-	// "((fn [a b] (+ b a)) 3 4)": "7",
-	// "((fn [] 4))": "4",
+	"(fn [] 1)":            "__fn__",
+	"((fn [] 4))":          "4",
+	"((fn [a] (+ 1 a)) 1)": "2",
+	// "((fn [a b] (+ b a)) 3 4)":               "7",
 	// "( (fn (f x) (f x)) (fn (a) (+ 1 a)) 7)": "8",
 }
 

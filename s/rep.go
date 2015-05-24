@@ -1,8 +1,6 @@
 package s
 
-import (
-// "fmt"
-)
+import "github.com/k0kubun/pp"
 
 var environment = NewEnv()
 
@@ -13,12 +11,22 @@ func read(input string) (Item, error) {
 }
 
 func eval(ast Item, env *Env) (Item, error) {
+	pp.Println("Eval", ast)
 	var result Item
 	var err error
 
 	switch v := ast.(type) {
 	case List:
-		symbol := v.Value[0].(Symbol)
+		var symbol Symbol
+		if v.Value[0].IsList() {
+			item, err := eval(v.Value[0], env)
+			if err != nil {
+				return nil, err
+			}
+			return eval(item, env)
+		}
+
+		symbol = v.Value[0].(Symbol)
 		nodes := v.Value[1:]
 
 		if symbol.Value == "def" {
@@ -64,6 +72,26 @@ func eval(ast Item, env *Env) (Item, error) {
 			}
 
 			result = newNode
+			break
+		}
+
+		if symbol.Value == "fn" {
+			fnName := Symbol{Value: "__fn__"}
+			env.DefineFn(fnName, func(args []Item) Item {
+				fnEnv := env.NewChild()
+
+				if len(args) > 0 {
+					names := nodes[0].(Vector)
+					for idx, item := range args {
+						fnEnv.Define(names.Value[idx], item)
+					}
+				}
+
+				ret, _ := eval(nodes[1], fnEnv)
+				return ret
+			})
+
+			result = fnName
 			break
 		}
 
@@ -113,7 +141,7 @@ func print(exp Item) (string, error) {
 	return output, nil
 }
 
-// Read Eval Print
+// Rep is an read-eval-print implementation
 func Rep(input string) (string, error) {
 	environment.Init()
 	ast, err := read(input)

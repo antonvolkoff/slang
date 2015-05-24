@@ -179,6 +179,11 @@ func (e *Env) Define(symbol Item, value Item) Item {
 	return value
 }
 
+// DefineFn creates new function
+func (e *Env) DefineFn(symbol Symbol, fn EnvFunc) {
+	e.defs[symbol.Value] = fn
+}
+
 // NewChild creates empty child environment
 func (e *Env) NewChild() *Env {
 	env := NewEnv()

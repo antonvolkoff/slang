@@ -1,5 +1,6 @@
 package s
 
+// Item is main AST interface
 type Item interface {
 	Equal(Item) Item
 	IsTrue() bool
@@ -12,6 +13,7 @@ type Item interface {
 	IsList() bool
 	IsHash() bool
 	IsVector() bool
+	IsFn() bool
 }
 
 type DefaultItem struct{}
@@ -53,6 +55,11 @@ func (self DefaultItem) IsHash() bool {
 }
 
 func (self DefaultItem) IsVector() bool {
+	return false
+}
+
+// IsFn returns true if given Item is a function
+func (self DefaultItem) IsFn() bool {
 	return false
 }
 
@@ -342,4 +349,15 @@ func (self Vector) Equal(i Item) Item {
 func (self Vector) Add(i Item) Vector {
 	self.Value = append(self.Value, i)
 	return self
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+type Fn struct {
+	DefaultItem
+	Value EnvFunc
+}
+
+func (self Fn) IsFn() bool {
+	return true
 }
