@@ -45,6 +45,25 @@ func TestEval(t *testing.T) {
 			}},
 			expected: Integer{Value: 2},
 		},
+		{ // ((fn [a b] (+ a b)) 1 1) => 2
+			root: List{Value: []Item{
+				List{Value: []Item{
+					Symbol{Value: "fn"},
+					Vector{Value: []Item{
+						Symbol{Value: "a"},
+						Symbol{Value: "b"},
+					}},
+					List{Value: []Item{
+						Symbol{Value: "+"},
+						Symbol{Value: "a"},
+						Symbol{Value: "b"},
+					}},
+				}},
+				Integer{Value: 1},
+				Integer{Value: 1},
+			}},
+			expected: Integer{Value: 2},
+		},
 	}
 
 	for _, test := range evalTests {

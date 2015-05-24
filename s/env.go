@@ -2,6 +2,7 @@ package s
 
 import (
 	"fmt"
+	// "github.com/k0kubun/pp"
 )
 
 // Env is a structure which holds environment data
@@ -32,9 +33,6 @@ func (e *Env) Init() {
 		return Integer{Value: result}, nil
 	}})
 
-	// e.defs["+"] = func(items []Item) Item {
-
-	// }
 	// e.defs["-"] = func(items []Item) Item {
 	// 	result := items[0].(Integer).Value
 	// 	for _, item := range items[1:] {
@@ -167,9 +165,15 @@ func (e *Env) Define(name string, val Item) Item {
 
 // Get return environment function
 func (e *Env) Get(name string) (Item, error) {
-	item, found := e.defs[name]
+	var item Item
+	var found bool
+
+	item, found = e.defs[name]
 	if !found {
-		return nil, fmt.Errorf("%s is undefined", name)
+		item, found = e.parent.defs[name]
+		if !found {
+			return nil, fmt.Errorf("%s is undefined", name)
+		}
 	}
 
 	return item, nil
