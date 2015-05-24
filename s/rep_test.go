@@ -37,6 +37,14 @@ func TestEval(t *testing.T) {
 			root:     List{},
 			expected: List{},
 		},
+		{ // (+ 1 1) => 2
+			root: List{Value: []Item{
+				Symbol{Value: "+"},
+				Integer{Value: 1},
+				Integer{Value: 1},
+			}},
+			expected: Integer{Value: 2},
+		},
 	}
 
 	for _, test := range evalTests {
