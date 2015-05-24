@@ -13,7 +13,7 @@ type Item interface {
 	IsList() bool
 	IsHash() bool
 	IsVector() bool
-	IsFn() bool
+	IsFunc() bool
 }
 
 type DefaultItem struct{}
@@ -58,8 +58,8 @@ func (self DefaultItem) IsVector() bool {
 	return false
 }
 
-// IsFn returns true if given Item is a function
-func (self DefaultItem) IsFn() bool {
+// IsFunc returns true if given Item is a function
+func (self DefaultItem) IsFunc() bool {
 	return false
 }
 
@@ -353,11 +353,18 @@ func (self Vector) Add(i Item) Vector {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-type Fn struct {
+// ItemFunc is a type definition of environment function
+type ItemFunc func([]Item) (Item, error)
+
+type Func struct {
 	DefaultItem
-	Value EnvFunc
+	Value ItemFunc
 }
 
-func (self Fn) IsFn() bool {
+func (self Func) IsFunc() bool {
 	return true
+}
+
+func (self Func) Equal(i Item) Item {
+	return False{}
 }
