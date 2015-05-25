@@ -95,23 +95,6 @@ func (e *Env) Init() {
 	// 	return Integer{Value: count}
 	// }
 	//
-	// // If condition
-	// e.defs["if"] = func(nodes []Item) Item {
-	// 	cond := nodes[0]
-	// 	ifTrue := nodes[1]
-	// 	var ifFalse Item
-	// 	if len(nodes) == 3 {
-	// 		ifFalse = nodes[2]
-	// 	} else {
-	// 		ifFalse = Nil{}
-	// 	}
-	//
-	// 	if cond.IsFalse() || cond.IsNil() {
-	// 		return ifFalse
-	// 	}
-	//
-	// 	return ifTrue
-	// }
 	//
 	// // Basic cond
 	// e.defs["="] = func(nodes []Item) Item {
@@ -165,19 +148,26 @@ func (e *Env) Define(name string, val Item) Item {
 	return val
 }
 
+func (e *Env) getRef(name string) (Item, error) {
+	item, found := e.defs[name]
+	if !found {
+		return nil, fmt.Errorf("%s is undefined", name)
+	}
+
+	return item, nil
+}
+
 // Get return environment function
 func (e *Env) Get(name string) (Item, error) {
 	var item Item
-	var found bool
+	var err error
 
-	item, found = e.defs[name]
-
-	if !found && e.parent != nil {
-		item, found = e.parent.defs[name]
-	}
-
-	if !found {
-		return nil, fmt.Errorf("%s is undefined", name)
+	item, err = e.getRef(name)
+	if err != nil {
+		item, err = e.parent.Get(name)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return item, nil

@@ -123,28 +123,28 @@ func TestRep_Let(t *testing.T) {
 	assert.Equal(t, "12", res3)
 }
 
-//
-// func TestRep_Outer(t *testing.T) {
-// 	res1, err1 := Rep(`(def a 4)`)
-// 	assert.NoError(t, err1)
-// 	assert.Equal(t, "4", res1)
-//
-// 	res2, err2 := Rep(`(let {q 9} q)`)
-// 	assert.NoError(t, err2)
-// 	assert.Equal(t, "9", res2)
-//
-// 	res3, err3 := Rep(`(let {q 9} a)`)
-// 	assert.NoError(t, err3)
-// 	assert.Equal(t, "4", res3)
-//
-// 	res4, err4 := Rep(`(let {z 2} (let {q 9} a))`)
-// 	assert.NoError(t, err4)
-// 	assert.Equal(t, "4", res4)
-//
-// 	res5, err5 := Rep(`(let {z a} z)`)
-// 	assert.NoError(t, err5)
-// 	assert.Equal(t, "4", res5)
-// }
+func TestRep_Outer(t *testing.T) {
+	res1, err1 := Rep(`(set a 4)`)
+	assert.NoError(t, err1)
+	assert.Equal(t, "4", res1)
+
+	res2, err2 := Rep(`(let {q 9} q)`)
+	assert.NoError(t, err2)
+	assert.Equal(t, "9", res2)
+
+	res3, err3 := Rep(`(let {q 9} a)`)
+	assert.NoError(t, err3)
+	assert.Equal(t, "4", res3)
+
+	res4, err4 := Rep(`(let {z 2} (let {q 9} a))`)
+	assert.NoError(t, err4)
+	assert.Equal(t, "4", res4)
+
+	res5, err5 := Rep(`(let {z a} z)`)
+	assert.NoError(t, err5)
+	assert.Equal(t, "4", res5)
+}
+
 //
 // var listCases = map[string]string{
 // 	"(list)":               "()",

@@ -11,6 +11,20 @@ func read(input string) (Item, error) {
 	return node, err
 }
 
+func evalFn(rest []Item, env *Env) (Item, error) {
+	fn := Func{Value: func(args []Item) (Item, error) {
+		fnEnv := env.NewChild()
+		defs := rest[0].(Vector).Value
+		for i, arg := range args {
+			fnEnv.Define(defs[i].(Symbol).Value, arg)
+		}
+
+		return Eval(rest[1], fnEnv)
+	}}
+
+	return fn, nil
+}
+
 func evalSet(args []Item, env *Env) (Item, error) {
 	name := args[0].(Symbol)
 	value := args[1]
@@ -57,6 +71,7 @@ func evalLet(args []Item, env *Env) (Item, error) {
 		childEnv.Define(name, value)
 	}
 
+	pp.Println("Env", childEnv)
 	// Eval code inside of let
 	exps := args[1]
 	result, err := Eval(exps, childEnv)
@@ -88,17 +103,7 @@ func Eval(root Item, env *Env) (Item, error) {
 
 		switch name {
 		case "fn":
-			fn := Func{Value: func(args []Item) (Item, error) {
-				fnEnv := env.NewChild()
-				defs := rest[0].(Vector).Value
-				for i, arg := range args {
-					fnEnv.Define(defs[i].(Symbol).Value, arg)
-				}
-
-				return Eval(rest[1], fnEnv)
-			}}
-
-			return fn, nil
+			return evalFn(rest, env)
 
 		case "set":
 			return evalSet(rest, env)
