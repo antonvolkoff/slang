@@ -247,3 +247,26 @@ func TestRep_Func(t *testing.T) {
 		assert.Equal(t, output, res, "%s should return %s", input, output)
 	}
 }
+
+func TestRep_Cjojures(t *testing.T) {
+	cases := []struct {
+		input  string
+		output string
+	}{
+		{"( ( (fn [a] (fn [b] (+ a b))) 5) 7)", "12"},
+
+		{"(set gen-plus5 (fn [] (fn [b] (+ 5 b))))", "function"},
+		{"(set plus5 (gen-plus5))", "function"},
+		{"(plus5 7)", "12"},
+
+		{"(set gen-plusX (fn [x] (fn [b] (+ x b))))", "function"},
+		{"(set plus7 (gen-plusX 7))", "function"},
+		{"(plus7 8)", "15"},
+	}
+
+	for _, c := range cases {
+		res, err := Rep(c.input)
+		assert.NoError(t, err)
+		assert.Equal(t, c.output, res, "%s should return %s", c.input, c.output)
+	}
+}

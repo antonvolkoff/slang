@@ -81,6 +81,9 @@ func (p *Printer) nodeToString(i Item) (string, error) {
 	case String:
 		output = fmt.Sprintf(`"%s"`, v.Value)
 
+	case Func:
+		output = "function"
+
 	default:
 		return "", fmt.Errorf("Unknown type '%s'", i)
 	}
