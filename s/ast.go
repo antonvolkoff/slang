@@ -1,5 +1,6 @@
 package s
 
+// Item is main AST interface
 type Item interface {
 	Equal(Item) Item
 	IsTrue() bool
@@ -12,6 +13,7 @@ type Item interface {
 	IsList() bool
 	IsHash() bool
 	IsVector() bool
+	IsFunc() bool
 }
 
 type DefaultItem struct{}
@@ -53,6 +55,11 @@ func (self DefaultItem) IsHash() bool {
 }
 
 func (self DefaultItem) IsVector() bool {
+	return false
+}
+
+// IsFunc returns true if given Item is a function
+func (self DefaultItem) IsFunc() bool {
 	return false
 }
 
@@ -339,6 +346,25 @@ func (self Vector) Equal(i Item) Item {
 	}
 }
 
-func (self Vector) Add(i Item) {
+func (self Vector) Add(i Item) Vector {
 	self.Value = append(self.Value, i)
+	return self
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+// ItemFunc is a type definition of environment function
+type ItemFunc func([]Item) (Item, error)
+
+type Func struct {
+	DefaultItem
+	Value ItemFunc
+}
+
+func (self Func) IsFunc() bool {
+	return true
+}
+
+func (self Func) Equal(i Item) Item {
+	return False{}
 }

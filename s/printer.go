@@ -49,6 +49,17 @@ func (p *Printer) nodeToString(i Item) (string, error) {
 		}
 		output = "{" + strings.Join(body, " ") + "}"
 
+	case Vector:
+		var body []string
+		for _, child := range v.Value {
+			str, err := p.nodeToString(child)
+			if err != nil {
+				return output, err
+			}
+			body = append(body, str)
+		}
+		output = "[" + strings.Join(body, " ") + "]"
+
 	case Integer:
 		output = fmt.Sprintf("%d", v.Value)
 

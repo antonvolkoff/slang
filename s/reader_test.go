@@ -97,6 +97,19 @@ var testcases = map[string]Item{
 			KeyValue{Key: String{Value: "b"}, Value: Integer{Value: 2}},
 		}}},
 	}},
+
+	// Vector
+	"[+ 1 2]": Vector{Value: []Item{
+		Symbol{Value: "+"},
+		Integer{Value: 1},
+		Integer{Value: 2},
+	}},
+	"[[3 4]]": Vector{Value: []Item{
+		Vector{Value: []Item{
+			Integer{Value: 3},
+			Integer{Value: 4},
+		}},
+	}},
 }
 
 func TestReader_Parse(t *testing.T) {

@@ -2,209 +2,186 @@ package s
 
 import (
 	"fmt"
+	// "github.com/k0kubun/pp"
 )
 
-type EnvFunc func([]Item) Item
-
+// Env is a structure which holds environment data
 type Env struct {
-	defs   map[string]EnvFunc
+	defs   map[string]Item
 	parent *Env
 }
 
+// NewEnv returns new environment data struct
 func NewEnv() *Env {
 	env := &Env{
-		defs:   make(map[string]EnvFunc),
+		defs:   make(map[string]Item),
 		parent: nil,
 	}
 
 	return env
 }
 
+// Init sets up main environment functions which can be executed
 func (e *Env) Init() {
-	e.defs["+"] = func(items []Item) Item {
+	e.Define("+", Func{Value: func(args []Item) (Item, error) {
 		var result int64
-		for _, item := range items {
+		for _, item := range args {
 			num := item.(Integer)
 			result += num.Value
 		}
 
-		return Integer{Value: result}
-	}
-	e.defs["-"] = func(items []Item) Item {
-		result := items[0].(Integer).Value
-		for _, item := range items[1:] {
+		return Integer{Value: result}, nil
+	}})
+
+	e.Define("-", Func{Value: func(args []Item) (Item, error) {
+		result := args[0].(Integer).Value
+		for _, item := range args[1:] {
 			result -= item.(Integer).Value
 		}
 
-		return Integer{Value: result}
-	}
-	e.defs["*"] = func(items []Item) Item {
-		result := items[0].(Integer).Value
-		for _, item := range items[1:] {
+		return Integer{Value: result}, nil
+	}})
+
+	e.Define("*", Func{Value: func(args []Item) (Item, error) {
+		result := args[0].(Integer).Value
+		for _, item := range args[1:] {
 			result *= item.(Integer).Value
 		}
 
-		return Integer{Value: result}
-	}
-	e.defs["/"] = func(items []Item) Item {
-		result := items[0].(Integer).Value
-		for _, item := range items[1:] {
+		return Integer{Value: result}, nil
+	}})
+
+	e.Define("/", Func{Value: func(args []Item) (Item, error) {
+		result := args[0].(Integer).Value
+		for _, item := range args[1:] {
 			result /= item.(Integer).Value
 		}
 
-		return Integer{Value: result}
-	}
+		return Integer{Value: result}, nil
+	}})
 
-	// List functions
-	e.defs["list"] = func(items []Item) Item {
+	e.Define("list", Func{Value: func(args []Item) (Item, error) {
 		var value []Item
-		if items == nil {
+		if args == nil {
 			value = []Item{}
 		} else {
-			value = items
+			value = args
 		}
 
-		return List{Value: value}
-	}
-	e.defs["list?"] = func(items []Item) Item {
-		if _, ok := items[0].(List); ok {
-			return True{}
+		return List{Value: value}, nil
+	}})
+
+	e.Define("list?", Func{Value: func(args []Item) (Item, error) {
+		if _, ok := args[0].(List); ok {
+			return True{}, nil
 		}
-		return False{}
-	}
-	e.defs["empty?"] = func(items []Item) Item {
-		list := items[0].(List)
+		return False{}, nil
+	}})
+
+	e.Define("empty?", Func{Value: func(args []Item) (Item, error) {
+		list := args[0].(List)
 		if len(list.Value) == 0 {
-			return True{}
+			return True{}, nil
 		}
 
-		return False{}
-	}
-	e.defs["count"] = func(items []Item) Item {
-		if !items[0].IsList() {
-			return Integer{Value: 0}
+		return False{}, nil
+	}})
+
+	e.Define("count", Func{Value: func(args []Item) (Item, error) {
+		if !args[0].IsList() {
+			return Integer{Value: 0}, nil
 		}
 
-		list := items[0].(List)
+		list := args[0].(List)
 		count := int64(len(list.Value))
-		return Integer{Value: count}
-	}
-
-	// If condition
-	e.defs["if"] = func(nodes []Item) Item {
-		cond := nodes[0]
-		ifTrue := nodes[1]
-		var ifFalse Item
-		if len(nodes) == 3 {
-			ifFalse = nodes[2]
-		} else {
-			ifFalse = Nil{}
-		}
-
-		if cond.IsFalse() || cond.IsNil() {
-			return ifFalse
-		} else {
-			return ifTrue
-		}
-	}
+		return Integer{Value: count}, nil
+	}})
 
 	// Basic cond
-	e.defs["="] = func(nodes []Item) Item {
-		left := nodes[0]
-		right := nodes[1]
+
+	e.Define("=", Func{Value: func(args []Item) (Item, error) {
+		left := args[0]
+		right := args[1]
 
 		if left.Equal(right).IsFalse() {
-			return False{}
+			return False{}, nil
 		}
 
-		return True{}
+		return True{}, nil
+	}})
 
-		// if left.Type != left.Type {
-		// 	return False{}
-		// }
-
-		// switch {
-		// case left.Type == "list" && right.Type == "list":
-		// 	leftValue := left.Children
-		// 	rightValue := right.Children
-
-		// 	if len(leftValue) != len(rightValue) {
-		// 		return False{}
-		// 	}
-
-		// 	for i := 0; i < len(leftValue); i++ {
-		// 		if leftValue[i].Type != rightValue[i].Type || leftValue[i].Value != rightValue[i].Value {
-		// 			return False{}
-		// 		}
-		// 	}
-
-		// 	return True{}
-
-		// default:
-		// 	if left.Value == right.Value {
-		// 		return True{}
-		// 	} else {
-		// 		return False{}
-		// 	}
-		// }
-	}
-	e.defs[">"] = func(items []Item) Item {
-		left := items[0].(Integer).Value
-		right := items[1].(Integer).Value
+	e.Define(">", Func{Value: func(args []Item) (Item, error) {
+		left := args[0].(Integer).Value
+		right := args[1].(Integer).Value
 		if left > right {
-			return True{}
-		} else {
-			return False{}
+			return True{}, nil
 		}
-	}
-	e.defs[">="] = func(items []Item) Item {
-		left := items[0].(Integer).Value
-		right := items[1].(Integer).Value
+		return False{}, nil
+	}})
+
+	e.Define(">=", Func{Value: func(args []Item) (Item, error) {
+		left := args[0].(Integer).Value
+		right := args[1].(Integer).Value
 		if left >= right {
-			return True{}
-		} else {
-			return False{}
+			return True{}, nil
 		}
-	}
-	e.defs["<="] = func(items []Item) Item {
-		left := items[0].(Integer).Value
-		right := items[1].(Integer).Value
+		return False{}, nil
+	}})
+
+	e.Define("<=", Func{Value: func(args []Item) (Item, error) {
+		left := args[0].(Integer).Value
+		right := args[1].(Integer).Value
 		if left <= right {
-			return True{}
-		} else {
-			return False{}
+			return True{}, nil
 		}
-	}
-	e.defs["<"] = func(items []Item) Item {
-		left := items[0].(Integer).Value
-		right := items[1].(Integer).Value
+		return False{}, nil
+	}})
+
+	e.Define("<", Func{Value: func(args []Item) (Item, error) {
+		left := args[0].(Integer).Value
+		right := args[1].(Integer).Value
 		if left < right {
-			return True{}
-		} else {
-			return False{}
+			return True{}, nil
 		}
-	}
+
+		return False{}, nil
+	}})
 }
 
-func (e *Env) Call(sym string, nodes []Item) (Item, error) {
-	fn, ok := e.defs[sym]
-	if !ok {
+// Define adds new function to an environment
+func (e *Env) Define(name string, val Item) Item {
+	e.defs[name] = val
+	return val
+}
+
+func (e *Env) getRef(name string) (Item, error) {
+	if item, ok := e.defs[name]; ok {
+		return item, nil
+	}
+	return nil, fmt.Errorf("%s is undefined", name)
+}
+
+// Get return environment function
+func (e *Env) Get(name string) (Item, error) {
+	var item Item
+	var err error
+
+	item, err = e.getRef(name)
+	if err != nil {
 		if e.parent != nil {
-			return e.parent.Call(sym, nodes)
+			item, err = e.parent.Get(name)
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			return nil, err
 		}
-		return nil, fmt.Errorf("Undefined call to %s", sym)
-	}
-	return fn(nodes), nil
-}
-
-func (e *Env) Define(symbol Item, value Item) Item {
-	e.defs[symbol.(Symbol).Value] = func(items []Item) Item {
-		return value
 	}
 
-	return value
+	return item, nil
 }
 
+// NewChild creates empty child environment
 func (e *Env) NewChild() *Env {
 	env := NewEnv()
 	env.parent = e

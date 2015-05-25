@@ -1,8 +1,6 @@
 package s
 
-import (
-// "fmt"
-)
+import "fmt"
 
 var environment = NewEnv()
 
@@ -12,96 +10,157 @@ func read(input string) (Item, error) {
 	return node, err
 }
 
-func eval(ast Item, env *Env) (Item, error) {
-	var result Item
-	var err error
-
-	switch v := ast.(type) {
-	case List:
-		symbol := v.Value[0].(Symbol)
-		nodes := v.Value[1:]
-
-		if symbol.Value == "def" {
-			if nodes[1].IsList() {
-				newNode, err := eval(nodes[1], env)
-				if err != nil {
-					return nil, err
-				}
-				nodes[1] = newNode
-			}
-			result = env.Define(nodes[0], nodes[1])
-			break
+func evalFn(rest []Item, env *Env) (Item, error) {
+	fn := Func{Value: func(args []Item) (Item, error) {
+		fnEnv := env.NewChild()
+		defs := rest[0].(Vector).Value
+		for i, arg := range args {
+			fnEnv.Define(defs[i].(Symbol).Value, arg)
 		}
 
-		if symbol.Value == "let" {
-			childEnv := env.NewChild()
+		return Eval(rest[1], fnEnv)
+	}}
 
-			defs := nodes[0].(Hash)
-			for _, kv := range defs.Value {
-				var value Item
-				switch {
-				case kv.Value.IsList():
-					value, err = eval(kv.Value, childEnv)
-					if err != nil {
-						return nil, err
-					}
-				case kv.Value.IsSymbol():
-					value, err = eval(kv.Value, childEnv)
-					if err != nil {
-						return nil, err
-					}
-				default:
-					value = kv.Value
-				}
+	return fn, nil
+}
 
-				childEnv.Define(kv.Key, value)
+func evalSet(args []Item, env *Env) (Item, error) {
+	name := args[0].(Symbol)
+	value := args[1]
+
+	if value.IsList() {
+		var err error
+		value, err = Eval(value, env)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	env.Define(name.Value, value)
+
+	return value, nil
+}
+
+func evalLet(args []Item, env *Env) (Item, error) {
+	childEnv := env.NewChild()
+
+	// Set env variables
+	vars := args[0].(Hash)
+
+	for _, kv := range vars.Value {
+		var value Item
+		var err error
+
+		switch v := kv.Value.(type) {
+		case List:
+			value, err = Eval(v, childEnv)
+			if err != nil {
+				return nil, err
 			}
+		case Symbol:
+			value, err = Eval(v, childEnv)
+			if err != nil {
+				return nil, err
+			}
+		default:
+			value = kv.Value
+		}
 
-			exps := nodes[1]
-			newNode, err := eval(exps, childEnv)
+		name := kv.Key.(Symbol).Value
+		childEnv.Define(name, value)
+	}
+
+	// Eval code inside of let
+	exps := args[1]
+	result, err := Eval(exps, childEnv)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func evalIf(args []Item, env *Env) (Item, error) {
+	cond := args[0]
+	ifTrue := args[1]
+	var ifFalse Item
+	if len(args) == 3 {
+		ifFalse = args[2]
+	} else {
+		ifFalse = Nil{}
+	}
+
+	if cond.IsFalse() || cond.IsNil() {
+		return Eval(ifFalse, env)
+	}
+	return Eval(ifTrue, env)
+}
+
+// Eval executes code
+func Eval(root Item, env *Env) (Item, error) {
+	switch v := root.(type) {
+	case List:
+		// Return empty list
+		if len(v.Value) == 0 {
+			return v, nil
+		}
+
+		head := v.Value[0]
+		rest := v.Value[1:]
+
+		name := "-::fn::-"
+		if head.IsSymbol() {
+			name = head.(Symbol).Value
+		}
+
+		switch name {
+		case "fn":
+			return evalFn(rest, env)
+
+		case "set":
+			return evalSet(rest, env)
+
+		case "let":
+			return evalLet(rest, env)
+
+		case "if":
+			return evalIf(rest, env)
+
+		default:
+			fn, err := Eval(head, env)
 			if err != nil {
 				return nil, err
 			}
 
-			result = newNode
-			break
-		}
+			if !fn.IsFunc() {
+				return nil, fmt.Errorf("Unexpected type of %v", fn)
+			}
 
-		for idx, node := range nodes {
-			if node.IsList() {
-				newNode, err := eval(node, env)
+			// Transform everything to Item value
+			for i, item := range rest {
+				output, err := Eval(item, env)
 				if err != nil {
 					return nil, err
 				}
 
-				nodes[idx] = newNode
+				rest[i] = output
 			}
-			if node.IsSymbol() {
-				newNode, err := eval(node, env)
-				if err != nil {
-					return nil, err
-				}
 
-				nodes[idx] = newNode
+			val, err := fn.(Func).Value(rest)
+			if err != nil {
+				return nil, err
 			}
-		}
 
-		result, err = env.Call(symbol.Value, nodes)
-		if err != nil {
-			return nil, err
+			return val, nil
 		}
 
 	case Symbol:
-		result, err = env.Call(v.Value, []Item{})
-		if err != nil {
-			return nil, err
-		}
+		val, err := env.Get(v.Value)
+		return val, err
 
 	default:
-		result = ast
+		return v, nil
 	}
-
-	return result, nil
 }
 
 func print(exp Item) (string, error) {
@@ -113,7 +172,7 @@ func print(exp Item) (string, error) {
 	return output, nil
 }
 
-// Read Eval Print
+// Rep is an read-eval-print implementation
 func Rep(input string) (string, error) {
 	environment.Init()
 	ast, err := read(input)
@@ -121,7 +180,7 @@ func Rep(input string) (string, error) {
 		return "", err
 	}
 
-	exp, err := eval(ast, environment)
+	exp, err := Eval(ast, environment)
 	if err != nil {
 		return "", err
 	}
