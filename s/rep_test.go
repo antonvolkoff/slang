@@ -6,6 +6,74 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestEval(t *testing.T) {
+	var env = NewEnv()
+	env.Init()
+
+	var evalTests = []struct {
+		root     Item
+		expected Item
+	}{
+		{ // 1 => 1
+			root:     Integer{Value: 1},
+			expected: Integer{Value: 1},
+		},
+		{ // "1" => "1"
+			root:     String{Value: "1"},
+			expected: String{Value: "1"},
+		},
+		{ // :key => :key
+			root:     Keyword{Value: "key"},
+			expected: Keyword{Value: "key"},
+		},
+		{ // + => Func
+			root: Symbol{Value: "+"},
+			expected: func() Item {
+				i, _ := env.Get("+")
+				return i
+			}(),
+		},
+		{ // () => ()
+			root:     List{},
+			expected: List{},
+		},
+		{ // (+ 1 1) => 2
+			root: List{Value: []Item{
+				Symbol{Value: "+"},
+				Integer{Value: 1},
+				Integer{Value: 1},
+			}},
+			expected: Integer{Value: 2},
+		},
+		{ // ((fn [a b] (+ a b)) 1 1) => 2
+			root: List{Value: []Item{
+				List{Value: []Item{
+					Symbol{Value: "fn"},
+					Vector{Value: []Item{
+						Symbol{Value: "a"},
+						Symbol{Value: "b"},
+					}},
+					List{Value: []Item{
+						Symbol{Value: "+"},
+						Symbol{Value: "a"},
+						Symbol{Value: "b"},
+					}},
+				}},
+				Integer{Value: 1},
+				Integer{Value: 1},
+			}},
+			expected: Integer{Value: 2},
+		},
+	}
+
+	for _, test := range evalTests {
+		actual, err := Eval(test.root, env)
+
+		assert.NoError(t, err)
+		assert.Equal(t, test.expected, actual)
+	}
+}
+
 var repTestcases = map[string]string{
 	"(+ 1 2)":                            "3",
 	"(+ 5 (* 2 3))":                      "11",
@@ -23,8 +91,8 @@ func TestRep(t *testing.T) {
 	}
 }
 
-func TestRep_Def(t *testing.T) {
-	res1, err1 := Rep(`(def x 2)`)
+func TestRep_Set(t *testing.T) {
+	res1, err1 := Rep(`(set x 2)`)
 	assert.NoError(t, err1)
 	assert.Equal(t, "2", res1)
 
@@ -36,7 +104,7 @@ func TestRep_Def(t *testing.T) {
 	assert.NoError(t, err3)
 	assert.Equal(t, "4", res3)
 
-	res4, err4 := Rep("(def y (+ 1 7))")
+	res4, err4 := Rep("(set y (+ 1 7))")
 	assert.NoError(t, err4)
 	assert.Equal(t, "8", res4)
 }
@@ -56,7 +124,7 @@ func TestRep_Let(t *testing.T) {
 }
 
 func TestRep_Outer(t *testing.T) {
-	res1, err1 := Rep(`(def a 4)`)
+	res1, err1 := Rep(`(set a 4)`)
 	assert.NoError(t, err1)
 	assert.Equal(t, "4", res1)
 
@@ -166,11 +234,10 @@ func TestRep_Cond(t *testing.T) {
 }
 
 var fnCases = map[string]string{
-	"(fn [] 1)":            "__fn__",
-	"((fn [] 4))":          "4",
-	"((fn [a] (+ 1 a)) 1)": "2",
-	// "((fn [a b] (+ b a)) 3 4)":               "7",
-	// "( (fn (f x) (f x)) (fn (a) (+ 1 a)) 7)": "8",
+	"((fn [] 4))":                            "4",
+	"((fn [a] (+ 1 a)) 1)":                   "2",
+	"((fn [a b] (+ b a)) 3 4)":               "7",
+	"( (fn [f x] (f x)) (fn [a] (+ 1 a)) 7)": "8",
 }
 
 func TestRep_Func(t *testing.T) {
