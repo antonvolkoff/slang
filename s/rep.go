@@ -1,6 +1,5 @@
 package s
 
-import "github.com/k0kubun/pp"
 import "fmt"
 
 var environment = NewEnv()
@@ -71,7 +70,6 @@ func evalLet(args []Item, env *Env) (Item, error) {
 		childEnv.Define(name, value)
 	}
 
-	pp.Println("Env", childEnv)
 	// Eval code inside of let
 	exps := args[1]
 	result, err := Eval(exps, childEnv)
@@ -84,8 +82,6 @@ func evalLet(args []Item, env *Env) (Item, error) {
 
 // Eval executes code
 func Eval(root Item, env *Env) (Item, error) {
-	pp.Println(root)
-
 	switch v := root.(type) {
 	case List:
 		// Return empty list
@@ -140,7 +136,8 @@ func Eval(root Item, env *Env) (Item, error) {
 		}
 
 	case Symbol:
-		return env.Get(v.Value)
+		val, err := env.Get(v.Value)
+		return val, err
 
 	default:
 		return v, nil

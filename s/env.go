@@ -60,31 +60,43 @@ func (e *Env) Init() {
 		return Integer{Value: result}, nil
 	}})
 
-	// // List functions
-	// e.defs["list"] = func(items []Item) Item {
-	// 	var value []Item
-	// 	if items == nil {
-	// 		value = []Item{}
-	// 	} else {
-	// 		value = items
-	// 	}
-	//
-	// 	return List{Value: value}
-	// }
-	// e.defs["list?"] = func(items []Item) Item {
-	// 	if _, ok := items[0].(List); ok {
-	// 		return True{}
-	// 	}
-	// 	return False{}
-	// }
-	// e.defs["empty?"] = func(items []Item) Item {
-	// 	list := items[0].(List)
-	// 	if len(list.Value) == 0 {
-	// 		return True{}
-	// 	}
-	//
-	// 	return False{}
-	// }
+	e.Define("list", Func{Value: func(args []Item) (Item, error) {
+		var value []Item
+		if args == nil {
+			value = []Item{}
+		} else {
+			value = args
+		}
+
+		return List{Value: value}, nil
+	}})
+
+	e.Define("list?", Func{Value: func(args []Item) (Item, error) {
+		if _, ok := args[0].(List); ok {
+			return True{}, nil
+		}
+		return False{}, nil
+	}})
+
+	e.Define("empty?", Func{Value: func(args []Item) (Item, error) {
+		list := args[0].(List)
+		if len(list.Value) == 0 {
+			return True{}, nil
+		}
+
+		return False{}, nil
+	}})
+
+	e.Define("count", Func{Value: func(args []Item) (Item, error) {
+		if !args[0].IsList() {
+			return Integer{Value: 0}, nil
+		}
+
+		list := args[0].(List)
+		count := int64(len(list.Value))
+		return Integer{Value: count}, nil
+	}})
+
 	// e.defs["count"] = func(items []Item) Item {
 	// 	if !items[0].IsList() {
 	// 		return Integer{Value: 0}
@@ -149,12 +161,10 @@ func (e *Env) Define(name string, val Item) Item {
 }
 
 func (e *Env) getRef(name string) (Item, error) {
-	item, found := e.defs[name]
-	if !found {
-		return nil, fmt.Errorf("%s is undefined", name)
+	if item, ok := e.defs[name]; ok {
+		return item, nil
 	}
-
-	return item, nil
+	return nil, fmt.Errorf("%s is undefined", name)
 }
 
 // Get return environment function
@@ -164,8 +174,12 @@ func (e *Env) Get(name string) (Item, error) {
 
 	item, err = e.getRef(name)
 	if err != nil {
-		item, err = e.parent.Get(name)
-		if err != nil {
+		if e.parent != nil {
+			item, err = e.parent.Get(name)
+			if err != nil {
+				return nil, err
+			}
+		} else {
 			return nil, err
 		}
 	}
