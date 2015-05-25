@@ -146,6 +146,15 @@ func (e *Env) Init() {
 
 		return False{}, nil
 	}})
+
+	e.Define("not", Func{Value: func(args []Item) (Item, error) {
+		val := args[0]
+		if val.IsFalse() {
+			return True{}, nil
+		}
+
+		return False{}, nil
+	}})
 }
 
 // Define adds new function to an environment

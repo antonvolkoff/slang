@@ -270,3 +270,21 @@ func TestRep_Cjojures(t *testing.T) {
 		assert.Equal(t, c.output, res, "%s should return %s", c.input, c.output)
 	}
 }
+
+func TestRep_Not(t *testing.T) {
+	cases := []struct {
+		input  string
+		output string
+	}{
+		{"(not false)", "true"},
+		{"(not true)", "false"},
+		{`(not "a")`, "false"},
+		{"(not 0)", "false"},
+	}
+
+	for _, c := range cases {
+		res, err := Rep(c.input)
+		assert.NoError(t, err)
+		assert.Equal(t, c.output, res, "%s should return %s", c.input, c.output)
+	}
+}
