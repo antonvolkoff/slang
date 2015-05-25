@@ -109,20 +109,20 @@ func TestRep_Set(t *testing.T) {
 	assert.Equal(t, "8", res4)
 }
 
-//
-// func TestRep_Let(t *testing.T) {
-// 	res1, err1 := Rep(`(let {z 9} z)`)
-// 	assert.NoError(t, err1)
-// 	assert.Equal(t, "9", res1)
-//
-// 	res2, err2 := Rep(`(let {z (+ 2 3)} (+ 1 z))`)
-// 	assert.NoError(t, err2)
-// 	assert.Equal(t, "6", res2)
-//
-// 	res3, err3 := Rep(`(let {p (+ 2 3) q (+ 2 p)} (+ p q))`)
-// 	assert.NoError(t, err3)
-// 	assert.Equal(t, "12", res3)
-// }
+func TestRep_Let(t *testing.T) {
+	res1, err1 := Rep(`(let {z 9} z)`)
+	assert.NoError(t, err1)
+	assert.Equal(t, "9", res1)
+
+	res2, err2 := Rep(`(let {z (+ 2 3)} (+ 1 z))`)
+	assert.NoError(t, err2)
+	assert.Equal(t, "6", res2)
+
+	res3, err3 := Rep(`(let {p (+ 2 3) q (+ 2 p)} (+ p q))`)
+	assert.NoError(t, err3)
+	assert.Equal(t, "12", res3)
+}
+
 //
 // func TestRep_Outer(t *testing.T) {
 // 	res1, err1 := Rep(`(def a 4)`)

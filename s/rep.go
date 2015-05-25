@@ -11,6 +11,62 @@ func read(input string) (Item, error) {
 	return node, err
 }
 
+func evalSet(args []Item, env *Env) (Item, error) {
+	name := args[0].(Symbol)
+	value := args[1]
+
+	if value.IsList() {
+		var err error
+		value, err = Eval(value, env)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	env.Define(name.Value, value)
+
+	return value, nil
+}
+
+func evalLet(args []Item, env *Env) (Item, error) {
+	childEnv := env.NewChild()
+
+	// Set env variables
+	vars := args[0].(Hash)
+
+	for _, kv := range vars.Value {
+		var value Item
+		var err error
+
+		switch v := kv.Value.(type) {
+		case List:
+			value, err = Eval(v, childEnv)
+			if err != nil {
+				return nil, err
+			}
+		case Symbol:
+			value, err = Eval(v, childEnv)
+			if err != nil {
+				return nil, err
+			}
+		default:
+			value = kv.Value
+		}
+
+		name := kv.Key.(Symbol).Value
+		childEnv.Define(name, value)
+	}
+
+	// Eval code inside of let
+	exps := args[1]
+	result, err := Eval(exps, childEnv)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
 // Eval executes code
 func Eval(root Item, env *Env) (Item, error) {
 	pp.Println(root)
@@ -45,20 +101,10 @@ func Eval(root Item, env *Env) (Item, error) {
 			return fn, nil
 
 		case "set":
-			name := rest[0].(Symbol)
-			value := rest[1]
+			return evalSet(rest, env)
 
-			if value.IsList() {
-				var err error
-				value, err = Eval(value, env)
-				if err != nil {
-					return nil, err
-				}
-			}
-
-			env.Define(name.Value, value)
-
-			return value, nil
+		case "let":
+			return evalLet(rest, env)
 
 		default:
 			fn, err := Eval(head, env)
