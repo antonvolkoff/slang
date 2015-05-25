@@ -164,88 +164,86 @@ func TestRep_Lists(t *testing.T) {
 	}
 }
 
-//
-// var ifCases = map[string]string{
-// 	"(if true 7 8)":              "7",
-// 	"(if false 7 8)":             "8",
-// 	"(if true (+ 1 7) (+ 1 8))":  "8",
-// 	"(if false (+ 1 7) (+ 1 8))": "9",
-// 	"(if nil 7 8)":               "8",
-// 	"(if 0 7 8)":                 "7",
-// 	`(if "" 7 8)`:                "7",
-// 	"(if (list) 7 8)":            "7",
-// 	"(if (list 1 2 3) 7 8)":      "7",
-// 	"(if false (+ 1 7))":         "nil",
-// 	"(if true (+ 1 7))":          "8",
-// }
-//
-// func TestRep_If(t *testing.T) {
-// 	for input, output := range ifCases {
-// 		res, err := Rep(input)
-// 		assert.NoError(t, err)
-// 		assert.Equal(t, output, res)
-// 	}
-// }
-//
-// var condCases = map[string]string{
-// 	"(= 2 1)":                   "false",
-// 	"(= 1 1)":                   "true",
-// 	"(= 1 (+ 1 1))":             "false",
-// 	"(= 2 (+ 1 1))":             "true",
-// 	"(= nil 1)":                 "false",
-// 	"(= nil nil)":               "true",
-// 	"(= 0 0)":                   "true",
-// 	"(= 1 0)":                   "false",
-// 	`(= "" "")`:                 "true",
-// 	`(= "abc" "")`:              "false",
-// 	`(= "" "abc")`:              "false",
-// 	`(= "abc" "def")`:           "false",
-// 	"(= (list) (list))":         "true",
-// 	"(= (list 1 2) (list 1 2))": "true",
-// 	"(= (list 1) (list))":       "false",
-// 	"(= (list) (list 1))":       "false",
-// 	"(= 0 (list))":              "false",
-// 	"(= (list) 0)":              "false",
-// 	`(= (list) "")`:             "false",
-// 	`(= "" (list))`:             "false",
-//
-// 	"(> 2 1)": "true",
-// 	"(> 1 1)": "false",
-// 	"(> 1 2)": "false",
-//
-// 	"(>= 2 1)": "true",
-// 	"(>= 1 1)": "true",
-// 	"(>= 1 2)": "false",
-//
-// 	"(< 2 1)": "false",
-// 	"(< 1 1)": "false",
-// 	"(< 1 2)": "true",
-//
-// 	"(<= 2 1)": "false",
-// 	"(<= 1 1)": "true",
-// 	"(<= 1 2)": "true",
-// }
-//
-// func TestRep_Cond(t *testing.T) {
-// 	for input, output := range condCases {
-// 		res, err := Rep(input)
-// 		assert.NoError(t, err)
-// 		assert.Equal(t, output, res, "%s should return %s", input, output)
-// 	}
-// }
-//
-// var fnCases = map[string]string{
-// 	"(fn [] 1)":            "__fn__",
-// 	"((fn [] 4))":          "4",
-// 	"((fn [a] (+ 1 a)) 1)": "2",
-// 	// "((fn [a b] (+ b a)) 3 4)":               "7",
-// 	// "( (fn (f x) (f x)) (fn (a) (+ 1 a)) 7)": "8",
-// }
-//
-// func TestRep_Func(t *testing.T) {
-// 	for input, output := range fnCases {
-// 		res, err := Rep(input)
-// 		assert.NoError(t, err)
-// 		assert.Equal(t, output, res, "%s should return %s", input, output)
-// 	}
-// }
+var ifCases = map[string]string{
+	"(if true 7 8)":              "7",
+	"(if false 7 8)":             "8",
+	"(if true (+ 1 7) (+ 1 8))":  "8",
+	"(if false (+ 1 7) (+ 1 8))": "9",
+	"(if nil 7 8)":               "8",
+	"(if 0 7 8)":                 "7",
+	`(if "" 7 8)`:                "7",
+	"(if (list) 7 8)":            "7",
+	"(if (list 1 2 3) 7 8)":      "7",
+	"(if false (+ 1 7))":         "nil",
+	"(if true (+ 1 7))":          "8",
+}
+
+func TestRep_If(t *testing.T) {
+	for input, output := range ifCases {
+		res, err := Rep(input)
+		assert.NoError(t, err)
+		assert.Equal(t, output, res)
+	}
+}
+
+var condCases = map[string]string{
+	"(= 2 1)":                   "false",
+	"(= 1 1)":                   "true",
+	"(= 1 (+ 1 1))":             "false",
+	"(= 2 (+ 1 1))":             "true",
+	"(= nil 1)":                 "false",
+	"(= nil nil)":               "true",
+	"(= 0 0)":                   "true",
+	"(= 1 0)":                   "false",
+	`(= "" "")`:                 "true",
+	`(= "abc" "")`:              "false",
+	`(= "" "abc")`:              "false",
+	`(= "abc" "def")`:           "false",
+	"(= (list) (list))":         "true",
+	"(= (list 1 2) (list 1 2))": "true",
+	"(= (list 1) (list))":       "false",
+	"(= (list) (list 1))":       "false",
+	"(= 0 (list))":              "false",
+	"(= (list) 0)":              "false",
+	`(= (list) "")`:             "false",
+	`(= "" (list))`:             "false",
+
+	"(> 2 1)": "true",
+	"(> 1 1)": "false",
+	"(> 1 2)": "false",
+
+	"(>= 2 1)": "true",
+	"(>= 1 1)": "true",
+	"(>= 1 2)": "false",
+
+	"(< 2 1)": "false",
+	"(< 1 1)": "false",
+	"(< 1 2)": "true",
+
+	"(<= 2 1)": "false",
+	"(<= 1 1)": "true",
+	"(<= 1 2)": "true",
+}
+
+func TestRep_Cond(t *testing.T) {
+	for input, output := range condCases {
+		res, err := Rep(input)
+		assert.NoError(t, err)
+		assert.Equal(t, output, res, "%s should return %s", input, output)
+	}
+}
+
+var fnCases = map[string]string{
+	"((fn [] 4))":                            "4",
+	"((fn [a] (+ 1 a)) 1)":                   "2",
+	"((fn [a b] (+ b a)) 3 4)":               "7",
+	"( (fn [f x] (f x)) (fn [a] (+ 1 a)) 7)": "8",
+}
+
+func TestRep_Func(t *testing.T) {
+	for input, output := range fnCases {
+		res, err := Rep(input)
+		assert.NoError(t, err)
+		assert.Equal(t, output, res, "%s should return %s", input, output)
+	}
+}

@@ -80,6 +80,22 @@ func evalLet(args []Item, env *Env) (Item, error) {
 	return result, nil
 }
 
+func evalIf(args []Item, env *Env) (Item, error) {
+	cond := args[0]
+	ifTrue := args[1]
+	var ifFalse Item
+	if len(args) == 3 {
+		ifFalse = args[2]
+	} else {
+		ifFalse = Nil{}
+	}
+
+	if cond.IsFalse() || cond.IsNil() {
+		return Eval(ifFalse, env)
+	}
+	return Eval(ifTrue, env)
+}
+
 // Eval executes code
 func Eval(root Item, env *Env) (Item, error) {
 	switch v := root.(type) {
@@ -106,6 +122,9 @@ func Eval(root Item, env *Env) (Item, error) {
 
 		case "let":
 			return evalLet(rest, env)
+
+		case "if":
+			return evalIf(rest, env)
 
 		default:
 			fn, err := Eval(head, env)

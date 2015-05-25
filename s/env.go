@@ -97,61 +97,55 @@ func (e *Env) Init() {
 		return Integer{Value: count}, nil
 	}})
 
-	// e.defs["count"] = func(items []Item) Item {
-	// 	if !items[0].IsList() {
-	// 		return Integer{Value: 0}
-	// 	}
-	//
-	// 	list := items[0].(List)
-	// 	count := int64(len(list.Value))
-	// 	return Integer{Value: count}
-	// }
-	//
-	//
-	// // Basic cond
-	// e.defs["="] = func(nodes []Item) Item {
-	// 	left := nodes[0]
-	// 	right := nodes[1]
-	//
-	// 	if left.Equal(right).IsFalse() {
-	// 		return False{}
-	// 	}
-	//
-	// 	return True{}
-	// }
-	// e.defs[">"] = func(items []Item) Item {
-	// 	left := items[0].(Integer).Value
-	// 	right := items[1].(Integer).Value
-	// 	if left > right {
-	// 		return True{}
-	// 	}
-	// 	return False{}
-	// }
-	// e.defs[">="] = func(items []Item) Item {
-	// 	left := items[0].(Integer).Value
-	// 	right := items[1].(Integer).Value
-	// 	if left >= right {
-	// 		return True{}
-	// 	}
-	// 	return False{}
-	// }
-	// e.defs["<="] = func(items []Item) Item {
-	// 	left := items[0].(Integer).Value
-	// 	right := items[1].(Integer).Value
-	// 	if left <= right {
-	// 		return True{}
-	// 	}
-	// 	return False{}
-	// }
-	// e.defs["<"] = func(items []Item) Item {
-	// 	left := items[0].(Integer).Value
-	// 	right := items[1].(Integer).Value
-	// 	if left < right {
-	// 		return True{}
-	// 	}
-	//
-	// 	return False{}
-	// }
+	// Basic cond
+
+	e.Define("=", Func{Value: func(args []Item) (Item, error) {
+		left := args[0]
+		right := args[1]
+
+		if left.Equal(right).IsFalse() {
+			return False{}, nil
+		}
+
+		return True{}, nil
+	}})
+
+	e.Define(">", Func{Value: func(args []Item) (Item, error) {
+		left := args[0].(Integer).Value
+		right := args[1].(Integer).Value
+		if left > right {
+			return True{}, nil
+		}
+		return False{}, nil
+	}})
+
+	e.Define(">=", Func{Value: func(args []Item) (Item, error) {
+		left := args[0].(Integer).Value
+		right := args[1].(Integer).Value
+		if left >= right {
+			return True{}, nil
+		}
+		return False{}, nil
+	}})
+
+	e.Define("<=", Func{Value: func(args []Item) (Item, error) {
+		left := args[0].(Integer).Value
+		right := args[1].(Integer).Value
+		if left <= right {
+			return True{}, nil
+		}
+		return False{}, nil
+	}})
+
+	e.Define("<", Func{Value: func(args []Item) (Item, error) {
+		left := args[0].(Integer).Value
+		right := args[1].(Integer).Value
+		if left < right {
+			return True{}, nil
+		}
+
+		return False{}, nil
+	}})
 }
 
 // Define adds new function to an environment
